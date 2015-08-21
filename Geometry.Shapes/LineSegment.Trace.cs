@@ -58,10 +58,10 @@ namespace AlgebraGeometry
 
             var trace = new TraceStep(old_eq, eq, step1metaRule, step1AppliedRule);
             lst.Add(trace);
-
-            object obj;
-            bool result =  eq.IsEqGoal(out obj);
-            var eqGoal = obj as EqGoal;
+            Console.Write("TEst");
+            object obj1;
+            bool result =  eq.IsEqGoal(out obj1);
+            var eqGoal = obj1 as EqGoal;
             Debug.Assert(result);
             Debug.Assert(eqGoal != null);
 
