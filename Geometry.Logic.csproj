@@ -97,16 +97,15 @@
     <Compile Include="Test\1.Relation\0.Test.Line.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharpLogic\CSharpLogic.csproj">
+    <Content Include="Geometry.Relation\TODO.txt" />
+    <Content Include="Test\1.Relation\TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="CSharp.Logic\CSharpLogic.csproj">
       <Project>{b6ae1355-89f0-4ecb-83ac-b3b5118a6e4e}</Project>
       <Name>CSharpLogic</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Geometry.Relation\TODO.txt" />
-    <Content Include="Test\1.Relation\TODO.txt" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
