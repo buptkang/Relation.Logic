@@ -101,7 +101,7 @@
     <Content Include="Test\1.Relation\TODO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="CSharp.Logic\CSharpLogic.csproj">
+    <ProjectReference Include="lib\CSharpLogic\CSharpLogic.csproj">
       <Project>{b6ae1355-89f0-4ecb-83ac-b3b5118a6e4e}</Project>
       <Name>CSharpLogic</Name>
     </ProjectReference>
