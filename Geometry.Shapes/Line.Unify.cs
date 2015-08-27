@@ -1,14 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Text.RegularExpressions;
-using CSharpLogic;
+﻿/*******************************************************************************
+ * Copyright (c) 2015 Bo Kang
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq.Expressions;
+    using System.Text.RegularExpressions;
+
     public static class LineEquationExtension
     {
         public static bool IsLineEquation(this Equation eq, out LineSymbol ls)
@@ -29,15 +43,26 @@ namespace AlgebraGeometry
             bool matched = SatisfyLineGeneralForm(outputEq, out line);
             if (matched)
             {
-                line.Traces = eq.CloneTrace();
+                List<TraceStep> steps;
+                List<string> strategies;
+                eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
+                
+                ls.Traces.AddRange(steps);
+                ls.StrategyTraces.AddRange(strategies);
+                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }
             matched = SatisfyLineSlopeInterceptForm(outputEq, out line);
             if (matched)
             {
-                line.Traces = eq.CloneTrace();
+                List<TraceStep> steps;
+                List<string> strategies;
+                eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
+                ls.Traces.AddRange(steps);
+                ls.StrategyTraces.AddRange(strategies);
+                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }
 
@@ -46,16 +71,19 @@ namespace AlgebraGeometry
             matched = SatisfyLineGeneralForm(outputEq, out line);
             if (matched)
             {
-                //line.Traces = eq.Traces;
+                List<TraceStep> steps;
+                List<string> strategies;
+                eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
+                ls.Traces.AddRange(steps);
+                ls.StrategyTraces.AddRange(strategies);
+                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }
-            else
-            {
-                //TODO
-                eq.Traces.Clear();
-                return false;
-            }
+
+            //TODO
+            eq.Traces.Clear();
+            return false;
         }
 
         private static bool SatisfyLineGeneralForm(Equation equation, out Line line)
@@ -78,7 +106,7 @@ namespace AlgebraGeometry
                 if (rhsTerm == null) return false;
 
                 line = rhsTerm.UnifyLineSlopeInterceptTerm();
-                return line != null;                
+                return line != null;
             }
             return false;
         }
@@ -112,7 +140,7 @@ namespace AlgebraGeometry
 
             if (index == args.Count)
             {
-                object slope     = dict.ContainsKey(A) ? dict[A] : null;
+                object slope = dict.ContainsKey(A) ? dict[A] : null;
                 object intercept = dict.ContainsKey(C) ? dict[C] : null;
                 return new Line(slope, intercept);
             }
@@ -199,13 +227,13 @@ namespace AlgebraGeometry
                     return null;
                 }
                 var dict = new Dictionary<string, object>();
-                return UnifyLineTerm(argLst, 0, dict);                
+                return UnifyLineTerm(argLst, 0, dict);
             }
             else
             {
-                var lst = new List<object>() {term};
+                var lst = new List<object>() { term };
                 var dict = new Dictionary<string, object>();
-                return UnifyLineTerm(lst, 0, dict);   
+                return UnifyLineTerm(lst, 0, dict);
             }
         }
 
@@ -231,7 +259,7 @@ namespace AlgebraGeometry
                 if (dict.ContainsKey(A))
                     throw new Exception("cannot contain two terms with same var");
                 dict.Add(A, coeff);
-                finalResult = true; 
+                finalResult = true;
             }
             result = IsYTerm(currArg, out coeff);
             if (result)
@@ -239,7 +267,7 @@ namespace AlgebraGeometry
                 if (dict.ContainsKey(B))
                     throw new Exception("cannot contain two terms with same var");
                 dict.Add(B, coeff);
-                finalResult = true; 
+                finalResult = true;
             }
             double d;
             result = LogicSharp.IsDouble(currArg, out d);
@@ -354,7 +382,7 @@ namespace AlgebraGeometry
             }
             return false;
         }
-               
+
         #endregion
     }
 }

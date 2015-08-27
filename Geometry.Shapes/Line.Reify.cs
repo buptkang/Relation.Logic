@@ -1,14 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using CSharpLogic;
-using System.Diagnostics;
-using NUnit.Framework;
+﻿/*******************************************************************************
+ * Copyright (c) 2015 Bo Kang
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+
     public partial class LineSymbol : ShapeSymbol
     {
         public bool Reify(EqGoal goal)
@@ -109,9 +121,9 @@ namespace AlgebraGeometry
                 }
 
                 //Substitution trace
-                string rule  = SubstitutionRule.ApplySubstitute();
+                string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this,new LineSymbol(gLine),rule, appliedRule);
+                var ts = new TraceStep(this, new LineSymbol(gLine), rule, appliedRule);
                 gLine.Traces.Insert(0, ts);
                 #endregion
             }
@@ -159,7 +171,7 @@ namespace AlgebraGeometry
                                 }
                                 else if (pair.Key.Equals(LineAcronym.C))
                                 {
-                                    gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.C, pair.Value));                                    
+                                    gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.C, pair.Value));
                                 }
                             }
                             CachedSymbols.Add(gLineSymbol);
@@ -178,7 +190,7 @@ namespace AlgebraGeometry
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
 
-                            var ts = new TraceStep(ls,gLineSymbol,rule, appliedRule);
+                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
                             gLine.Traces.Insert(0, ts);
                         }
                     }
@@ -198,7 +210,7 @@ namespace AlgebraGeometry
 
                 #region generate new object
 
-                var gLine = new Line(line.Label, line.A, obj , line.C);
+                var gLine = new Line(line.Label, line.A, obj, line.C);
                 var gLineSymbol = new LineSymbol(gLine);
                 gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.B, goal));
                 CachedSymbols.Add(gLineSymbol);
@@ -245,7 +257,7 @@ namespace AlgebraGeometry
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(ls, goal);
 
-                            var ts = new TraceStep(ls,gLineSymbol, rule, appliedRule);
+                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
                             line.Traces.Insert(0, ts);
                         }
                         else
@@ -280,7 +292,7 @@ namespace AlgebraGeometry
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
-                            var ts = new TraceStep(ls,gLineSymbol,rule, appliedRule);
+                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
                             gLine.Traces.Insert(0, ts);
                         }
                     }
@@ -345,7 +357,7 @@ namespace AlgebraGeometry
 
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
-                            var ts = new TraceStep(gLineSymbol,ss, rule, appliedRule);
+                            var ts = new TraceStep(gLineSymbol, ss, rule, appliedRule);
                             line.Traces.Insert(0, ts);
                         }
                         else
@@ -380,7 +392,7 @@ namespace AlgebraGeometry
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
-                            var ts = new TraceStep(ss, gLineSymbol,rule, appliedRule);
+                            var ts = new TraceStep(ss, gLineSymbol, rule, appliedRule);
                             gLine.Traces.Insert(0, ts);
                         }
                     }

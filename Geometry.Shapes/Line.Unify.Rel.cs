@@ -1,16 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using CSharpLogic;
-using NUnit.Framework;
-using System.ComponentModel;
-using System.Linq.Expressions;
+﻿/*******************************************************************************
+ * Copyright (c) 2015 Bo Kang
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+
     public static class LineBinaryRelation
     {
         /// <summary>
@@ -108,7 +118,7 @@ namespace AlgebraGeometry
                     LogicSharp.IsDouble(dict[slopeKey], out dSlope);
                     LogicSharp.IsDouble(dict[interceptKey], out dIntercept);
                     var line = LineGenerationRule.GenerateLine(dSlope, dIntercept);
-                    var ls = new LineSymbol(line) {OutputType = LineType.SlopeIntercept};
+                    var ls = new LineSymbol(line) { OutputType = LineType.SlopeIntercept };
                     return ls;
                 }
                 else
@@ -118,7 +128,7 @@ namespace AlgebraGeometry
                     var line = new Line(null); //ghost line
                     var ls = new LineSymbol(line);
                     ls.OutputType = LineType.SlopeIntercept;
-                    return ls;                    
+                    return ls;
                 }
             }
             return null;
@@ -164,22 +174,61 @@ namespace AlgebraGeometry
                     return ls.InferGeneralForm(refObj);
                 case LineAcronym.SlopeInterceptForm1:
                 case LineAcronym.SlopeInterceptForm2:
-                    return ls.InferSlopeInterceptForm(refObj);
+                case LineAcronym.SlopeInterceptForm3:
+                    return ls.InferSlopeInterceptForm();
+                case LineAcronym.GraphLine:
+                    return ls.InferGraph();
             }
 
             return null;
         }
 
-        private static LineSymbol InferSlopeInterceptForm(this LineSymbol inputLineSymbol, string label)
+        private static LineSymbol InferGraph(this LineSymbol inputLineSymbol)
+        {
+            var ls = inputLineSymbol.InferSlopeInterceptForm();
+            List<TraceStep> steps;
+            string strategy;
+            ls.FromSlopeIntercepToGraph(null, out steps, out strategy);
+            ls.Traces.AddRange(steps);
+            ls.StrategyTraces.Add(strategy);
+            return ls;
+        }
+
+        /// <summary>
+        /// ax+by+c=0 =========> y = -(a/b)x-(c/b)
+        /// </summary>
+        /// <param name="inputLineSymbol"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        private static LineSymbol InferSlopeInterceptForm(this LineSymbol inputLineSymbol)
         {
             //TODO
             var line = inputLineSymbol.Shape as Line;
             Debug.Assert(line != null);
             var ls = new LineSymbol(line);
             ls.OutputType = LineType.SlopeIntercept;
+            List<TraceStep> steps;
+            string strategy;
+            inputLineSymbol.FromLineGeneralFormToSlopeInterceptTrace(ls, out steps, out strategy);
+
+            if (!line.StrategyShowed)
+            {
+               ls.Traces.AddRange(inputLineSymbol.Traces);
+               ls.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
+               line.StrategyShowed = true;
+            }
+           
+            ls.Traces.AddRange(steps);
+            ls.StrategyTraces.Add(strategy);
             return ls;
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="inputLineSymbol"></param>
+        /// <param name="label"></param>
+        /// <returns></returns>
         private static LineSymbol InferGeneralForm(this LineSymbol inputLineSymbol, string label)
         {
             var line = inputLineSymbol.Shape as Line;
@@ -189,70 +238,56 @@ namespace AlgebraGeometry
             return ls;
         }
 
+
         private static EqGoal InferSlope(this LineSymbol inputLineSymbol, string label)
         {
             var line = inputLineSymbol.Shape as Line;
             Debug.Assert(line != null);
-            var goal =  new EqGoal(new Var(label), line.Slope);
+            var goal = new EqGoal(new Var(label), line.Slope);
 
-            if (line.InputType == LineType.SlopeIntercept)
+            LineSymbol currLineSymbol = inputLineSymbol;
+
+            //Pre-processing
+            if (inputLineSymbol.OutputType == LineType.GeneralForm)
             {
-                //Debug.Assert(line.Slope != null);
-                /*                var newGoal = new EqGoal(egGoal.Lhs, line.Slope);
-                                egGoal.CachedEntities.Add(newGoal);*/
-                //TODO
-                
+                if (!line.StrategyShowed)
+                {
+                    goal.Traces.AddRange(inputLineSymbol.Traces);
+                    goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
+                    line.StrategyShowed = true;
+                }
+
+                currLineSymbol = inputLineSymbol.InferSlopeInterceptForm();
+                //transform
+                goal.Traces.AddRange(currLineSymbol.Traces);
+                goal.StrategyTraces.AddRange(currLineSymbol.StrategyTraces);
             }
-            
-            if (line.InputType == LineType.GeneralForm)
+            else if (inputLineSymbol.OutputType == LineType.Relation)
             {
-                #region Infer Slope Procedure
-
-                var steps = inputLineSymbol.FromLineGeneralFormToSlopeTrace(goal);
-
-                if (goal.Traces != null)
+                if (!line.StrategyShowed)
                 {
-                    goal.Traces.AddRange(steps);
+                    goal.Traces.AddRange(inputLineSymbol.Traces);
+                    goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
+                    line.StrategyShowed = true;
                 }
-                else
-                {
-                    goal.Traces = steps;
-                }
-
-                /*Debug.Assert(line.A != null);
-                Debug.Assert(line.B != null);
-                Debug.Assert(line.C != null);
-
-                if (line.Concrete)
-                {
-                    double slope = (-1*(double)line.A)/(double)line.B;
-                    var newGoal = new EqGoal(egGoal.Lhs, slope);
-                    egGoal.CachedEntities.Add(newGoal);
-                }
-                else
-                {
-                    throw new Exception("TODO");
-                    //ax+by+c=0
-                    var term1 = new Term(Expression.Multiply, new List<object>() { -1, line.A });
-                    var term2 = new Term(Expression.Divide, new List<object>() { term1, line.B });
-                    object obj = term2.Eval();
-                    if (LogicSharp.IsNumeric(obj))
-                    {
-                        var newGoal = new EqGoal(egGoal.Lhs, line.Slope);
-                        egGoal.CachedEntities.Add(newGoal);
-                        return;
-                    }
-                }*/
-                #endregion
-            }
-            
-            if (line.InputType == LineType.Relation)
-            {
                 //TODO
                 /*  var newGoal = new EqGoal(egGoal.Lhs, line.Slope);
                   egGoal.CachedEntities.Add(newGoal);*/
             }
 
+            if (!line.StrategyShowed)
+            {
+                goal.Traces.AddRange(inputLineSymbol.Traces);
+                goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
+                line.StrategyShowed = true;
+            }
+
+            List<TraceStep> steps;
+            string strategy;
+            currLineSymbol.FromLineSlopeInterceptFormToSlopeTrace(
+                                goal, out steps, out strategy);
+            goal.Traces.AddRange(steps);
+            goal.StrategyTraces.Add(strategy);
             return goal;
         }
     }

@@ -428,26 +428,5 @@ namespace AlgebraGeometry
 
         #endregion
 
-        #region Line Pattern Match
-
-        [Test]
-        public void Test_Line_PatternMatch()
-        {
-            //(2*y)+(2*x)+(-1*y)+(2*x)+4=0
-            var x = new Var('x');
-            var y = new Var('y');
-
-            var term1 = new Term(Expression.Multiply, new List<object>() { 2, y });
-            var term2 = new Term(Expression.Multiply, new List<object>() { 2, x });
-            var term3 = new Term(Expression.Multiply, new List<object>() { -1, y });
-            var term4 = new Term(Expression.Multiply, new List<object>() { 2, x });
-            var term = new Term(Expression.Add, new List<object>() { term1, term2, term3, term4, 4}); 
-            var eq = new Equation(term, 0);
-            LineSymbol ls;
-            bool result = eq.IsLineEquation(out ls);
-            Assert.True(result);
-        }
-
-        #endregion
     }
 }

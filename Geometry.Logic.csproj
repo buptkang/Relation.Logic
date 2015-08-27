@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{37FF5773-06AE-41C1-BB0F-B7FE22FC874B}</ProjectGuid>
+    <ProjectGuid>{6A38A2DC-768D-4490-9DB3-9CF9998B6712}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AlgebraGeometry</RootNamespace>
@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\..\Math-Visual\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,31 +43,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Geometry.Shapes\Circle.Eval.cs" />
+    <Compile Include="Geometry.Shapes\Circle.Reify.cs" />
     <Compile Include="Geometry.Shapes\Ellipse.cs" />
-    <Compile Include="Geometry.Shapes\Ellipse.Eval.cs" />
-    <Compile Include="Geometry.Shapes\Line.Eval.cs" />
-    <Compile Include="Geometry.Shapes\Line.Rel.Unify.cs" />
+    <Compile Include="Geometry.Shapes\Ellipse.Reify.cs" />
+    <Compile Include="Geometry.Shapes\Line.Unify.cs" />
+    <Compile Include="Geometry.Shapes\Line.Unify.Rel.cs" />
     <Compile Include="Geometry.Shapes\Line.Trace.cs" />
     <Compile Include="Geometry.Shapes\LineSegment.Trace.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.Eval.cs" />
     <Compile Include="RelationGraph.UserModel\Graph.UserModel.cs" />
     <Compile Include="RelationGraph\Graph.Unify.Search.cs" />
+    <Compile Include="Test\2.Problems\Test_Scenario_5.cs" />
     <Content Include="RelationGraph\Inference.ConstraintEval.txt" />
     <Compile Include="RelationGraph\Graph.Unify.cs" />
     <Compile Include="Geometry.Relation\Relation.Verifier.cs" />
     <Compile Include="Geometry.Relation\Acronym.cs" />
-    <Compile Include="Geometry.Shapes\Circle.Cache.cs" />
     <Compile Include="Geometry.Shapes\Circle.cs" />
     <Compile Include="Geometry.Shapes\LineSegment.cs" />
     <Compile Include="Geometry.Relation\Relation.Reify.cs" />
-    <Compile Include="Geometry.Shapes\Line.Rel.Rule.cs" />
+    <Compile Include="Geometry.Shapes\Line.Unify.Rule.cs" />
     <Compile Include="Geometry.Shapes\LineSegment.Rel.Rule.cs" />
-    <Compile Include="Geometry.Shapes\Point.Rel.Unify.cs" />
-    <Compile Include="Geometry.Shapes\Line.Cache.cs" />
+    <Compile Include="Geometry.Shapes\Point.Unify.cs" />
+    <Compile Include="Geometry.Shapes\Line.Reify.cs" />
     <Compile Include="Geometry.Shapes\Line.cs" />
-    <Compile Include="Geometry.Shapes\Point.Cache.cs" />
+    <Compile Include="Geometry.Shapes\Point.Reify.cs" />
     <Compile Include="Geometry.Shapes\Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelationGraph\Constraint.Binary.cs" />
@@ -93,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Geometry.Shapes\LineSegment.Rel.Unify.cs" />
-    <None Include="packages.config" />
     <Compile Include="Test\1.Relation\0.Test.Line.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +104,9 @@
       <Project>{b6ae1355-89f0-4ecb-83ac-b3b5118a6e4e}</Project>
       <Name>CSharpLogic</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

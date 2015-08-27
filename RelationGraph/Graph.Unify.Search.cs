@@ -261,7 +261,8 @@ namespace AlgebraGeometry
                     {
                         foreach (var tempGn in queryNode.InternalNodes)
                         {
-                            if (tempGn.Related) dict.Add(tempGn, obj);
+                            if (!tempGn.Related) continue;
+                            dict.Add(tempGn, obj);
                         }
                     }
                 }
@@ -269,6 +270,8 @@ namespace AlgebraGeometry
 
             if (dict.Count != 0)
             {
+                //Conflict resolution
+                ConflictResolve(dict);
                 obj = dict;
                 return true;
             }
@@ -320,5 +323,68 @@ namespace AlgebraGeometry
             }
             return false;
         }
+
+        #region Utils
+
+        private void ConflictResolve(Dictionary<object, object> dict)
+        {
+            bool deleteFlag;
+            do
+            {
+                deleteFlag = false;
+                List<object> list = dict.Keys.ToList();
+                int itemCount = list.Count;
+                itemCount--;
+                for (var i = 0; i < itemCount; i++)
+                {
+                    GraphNode deletedNode;
+                    if (SatisfyRelation(list[i], list[i + 1], out deletedNode))
+                    {
+                        if (dict.ContainsKey(deletedNode))
+                        {
+                            dict.Remove(deletedNode);
+                        }
+                        deleteFlag = true;
+                    }
+                }
+            } while (deleteFlag);
+        }
+
+        /// <summary>
+        /// TODO recursive search
+        /// </summary>
+        /// <param name="obj1"></param>
+        /// <param name="obj2"></param>
+        /// <param name="deleteNode"></param>
+        /// <returns></returns>
+        private bool SatisfyRelation(object obj1, object obj2, out GraphNode deleteNode)
+        {
+            deleteNode = null;
+            var gn1 = obj1 as GraphNode;
+            var gn2 = obj2 as GraphNode;
+            Debug.Assert(gn1 != null);
+            Debug.Assert(gn2 != null);
+            foreach (var edge in gn1.OutEdges)
+            {
+                if (edge.Target == null) continue;
+                if (edge.Target.Equals(gn2))
+                {
+                    deleteNode = gn1;
+                    return true;
+                }
+            }
+            foreach (var edge in gn2.OutEdges)
+            {
+                if (edge.Target == null) continue;
+                if (edge.Target.Equals(gn1))
+                {
+                    deleteNode = gn2;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        #endregion
     }
 }

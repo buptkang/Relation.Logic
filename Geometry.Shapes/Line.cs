@@ -1,16 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using CSharpLogic;
-using System.ComponentModel;
-using System.Linq.Expressions;
+﻿/*******************************************************************************
+ * Copyright (c) 2015 Bo Kang
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Linq.Expressions;
+
     public partial class Line : Shape
     {
         #region Properties and Constructors
@@ -88,7 +102,7 @@ namespace AlgebraGeometry
         */
 
         public LineType InputType { get; set; }
-        public override object GetInputType() { return InputType; } 
+        public override object GetInputType() { return InputType; }
 
         #endregion
 
@@ -139,8 +153,8 @@ namespace AlgebraGeometry
             PropertyChanged += Line_PropertyChanged;
         }
 
-        public Line(object a, object b, object c): 
-            this(null, a,b,c)
+        public Line(object a, object b, object c) :
+            this(null, a, b, c)
         {
         }
 
@@ -273,7 +287,7 @@ namespace AlgebraGeometry
                    ^ C.GetHashCode();
         }
 
-        #endregion       
+        #endregion
 
         #region Transformations
 
@@ -368,7 +382,8 @@ namespace AlgebraGeometry
             return this.Unify(label, out obj);
         }
 
-        public LineSymbol(Line line) : base(line)
+        public LineSymbol(Line line)
+            : base(line)
         {
             OutputType = line.InputType;
         }
@@ -380,7 +395,7 @@ namespace AlgebraGeometry
             get
             {
                 var line = Shape as Line;
-                Debug.Assert(line!=null);
+                Debug.Assert(line != null);
                 return line.A != null ? line.A.ToString() : null;
             }
         }
@@ -464,8 +479,8 @@ namespace AlgebraGeometry
         //ax
         public string TermX
         {
-            get 
-            { 
+            get
+            {
                 var line = Shape as Line;
                 Debug.Assert(line != null);
                 if (LogicSharp.IsNumeric(line.A))
@@ -491,7 +506,7 @@ namespace AlgebraGeometry
                         {
                             return string.Format("x");
                         }
-                        
+
                     }
                     else
                     {
@@ -500,7 +515,7 @@ namespace AlgebraGeometry
                 }
                 else
                 {
-                    return string.Format("{0}x", SymA);                     
+                    return string.Format("{0}x", SymA);
                 }
             }
         }
@@ -520,14 +535,14 @@ namespace AlgebraGeometry
                     LogicSharp.IsDouble(line.B, out d);
 
                     double dd = Math.Abs(d);
-                    if(dd - 0.0 < 0.0000001) return "";
+                    if (dd - 0.0 < 0.0000001) return "";
 
                     if (d > 0.0)
                     {
                         if (d - 1.0 < 0.0001)
                         {
-                            return (SymA == null || SymA.Equals("0")) ? 
-                                string.Format("y") : 
+                            return (SymA == null || SymA.Equals("0")) ?
+                                string.Format("y") :
                                 string.Format("+y");
                         }
                         else
@@ -535,7 +550,7 @@ namespace AlgebraGeometry
                             return (SymA == null || SymA.Equals("0")) ?
                                 string.Format("{0}y", SymB) :
                                 string.Format("+{0}y", SymB);
-                        }                        
+                        }
                     }
                     else
                     {
@@ -561,7 +576,7 @@ namespace AlgebraGeometry
                               string.Format("{0}y", SymB) :
                               string.Format("+{0}y", SymB);
                 }
-            }            
+            }
         }
 
         //c
@@ -573,7 +588,7 @@ namespace AlgebraGeometry
                 Debug.Assert(line != null);
                 if (LogicSharp.IsNumeric(line.C))
                 {
-                    #region Numerics 
+                    #region Numerics
 
                     double d;
                     LogicSharp.IsDouble(line.C, out d);
@@ -599,7 +614,7 @@ namespace AlgebraGeometry
                 else
                 {
                     return string.Format("+{0}", SymC);
-                }                
+                }
             }
         }
 
@@ -608,10 +623,10 @@ namespace AlgebraGeometry
         {
             get
             {
-                if(SymA == null)
+                if (SymA == null)
                     return string.Format("{0}{1}=0", TermY, TermC);
 
-                if(SymB == null)
+                if (SymB == null)
                     return string.Format("{0}{1}=0", TermX, TermC);
 
                 return string.Format("{0}{1}{2}=0", TermX, TermY, TermC);
@@ -766,6 +781,22 @@ namespace AlgebraGeometry
             }
         }
 
+        public string YInterceptPt
+        {
+            get { return string.Format("(0,{0})", TermIntercept); }
+        }
+
+        public string XInterceptPt
+        {
+            get
+            {
+                var term1 = new Term(Expression.Multiply, new List<object>() { -1, TermIntercept });
+                var term2 = new Term(Expression.Divide, new List<object>() { term1, TermSlope });
+                var calcVal = term2.Eval();
+                return string.Format("({0},0)", calcVal.ToString());
+            }
+        }
+
         //        public string LinePointSlopeForm
         //        {
         //            get
@@ -798,7 +829,7 @@ namespace AlgebraGeometry
             Debug.Assert(line != null);
             if (OutputType == LineType.SlopeIntercept)
             {
-                return String.Format("{0}", SlopeInterceptForm);                
+                return String.Format("{0}", SlopeInterceptForm);
             }
             else
             {
@@ -809,7 +840,7 @@ namespace AlgebraGeometry
                 else
                 {
                     return String.Format("{0}", GeneralForm);
-                }                
+                }
             }
         }
 

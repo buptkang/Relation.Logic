@@ -1,15 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using CSharpLogic;
+﻿/*******************************************************************************
+ * Copyright (c) 2015 Bo Kang
+ *   
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+
     /// <summary>
-    /// Symbolic Reification, bottom-up process
+    /// Symbolic Reification, bottom-up forward chaining
     /// </summary>
     public partial class RelationGraph
     {
@@ -37,12 +50,6 @@ namespace AlgebraGeometry
                         goalNode.OutEdges.Add(edge);
                         shapeNode.InEdges.Add(edge);
                     }
-                    /*
-                    #region Interaction
-                    if (KnowledgeUpdated != null)
-                        KnowledgeUpdated(this, shapeNode.Shape);
-                    #endregion
-                     * */
                     continue;
                 }
                 var line = shapeNode.ShapeSymbol as LineSymbol;
@@ -94,10 +101,10 @@ namespace AlgebraGeometry
                     if (KnowledgeUpdated != null)
                         KnowledgeUpdated(this, shapeNode.Shape);
                     #endregion
-                     */ 
+                     */
                     continue;
                 }
- 
+
                 //Line Reification
                 var line = shapeNode.ShapeSymbol as LineSymbol;
                 if (line != null) reifyResult = line.Reify(eqGoal);
@@ -112,7 +119,7 @@ namespace AlgebraGeometry
                     if (KnowledgeUpdated != null)
                         KnowledgeUpdated(this, shapeNode.Shape);
                     #endregion
-                     */ 
+                     */
                     continue;
                 }
                 #endregion
@@ -122,13 +129,13 @@ namespace AlgebraGeometry
         private void UnReify(GoalNode goalNode)
         {
             var eqGoal = goalNode.Goal as EqGoal;
-            Debug.Assert(eqGoal!=null);
+            Debug.Assert(eqGoal != null);
 
             for (int i = 0; i < goalNode.OutEdges.Count; i++)
             {
                 GraphEdge outEdge = goalNode.OutEdges[i];
                 var shapeNode = outEdge.Target as ShapeNode;
-                if(shapeNode == null) throw new Exception("TODO, goal chain");
+                if (shapeNode == null) throw new Exception("TODO, goal chain");
 
                 var pt = shapeNode.ShapeSymbol as PointSymbol;
                 if (pt != null)
@@ -153,7 +160,7 @@ namespace AlgebraGeometry
                     if (KnowledgeUpdated != null)
                         KnowledgeUpdated(this, line);
                     #endregion
-                     */ 
+                     */
                 }
 
                 shapeNode.InEdges.Remove(outEdge);
@@ -191,7 +198,7 @@ namespace AlgebraGeometry
                             if (KnowledgeUpdated != null)
                                 KnowledgeUpdated(this, sn.Shape);
                             #endregion
-                             */ 
+                             */
                         }
                         //recursive update
                         ReifyByRelation(sn);
@@ -203,6 +210,6 @@ namespace AlgebraGeometry
                     }
                 }
             }
-        } 
+        }
     }
 }
