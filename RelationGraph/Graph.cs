@@ -32,9 +32,18 @@ namespace AlgebraGeometry
             get { return _nodes; }
             set { _nodes = value; }
         }
+
+        private List<GraphNode> _userNodes;
+        public List<GraphNode> UserNodes
+        {
+            get { return _userNodes; }
+            set { _userNodes = value; }
+        }
+
         public RelationGraph()
         {
-            _nodes = new List<GraphNode>();
+            _nodes     = new List<GraphNode>();
+            _userNodes = new List<GraphNode>();
             _preCache = new Dictionary<object, object>();
         }
 
@@ -55,7 +64,7 @@ namespace AlgebraGeometry
 
         #region public Input API
 
-        public GraphNode AddNode(object obj)
+        public GraphNode AddNode(object obj, bool userMode = false)
         {
             var shape = obj as ShapeSymbol;
             var goal = obj as Goal;
@@ -64,14 +73,14 @@ namespace AlgebraGeometry
 
             if (shape != null)
             {
-                var shapeNode = AddShapeNode(shape);
+                var shapeNode = AddShapeNode(shape, userMode);
                 _preCache.Add(shape, shapeNode);
                 ReAddQueryNode();
                 return shapeNode;
             }
             if (goal != null)
             {
-                var goalNode = AddGoalNode(goal);
+                var goalNode = AddGoalNode(goal, userMode);
                 _preCache.Add(goal, goalNode);
                 ReAddQueryNode();
                 return goalNode;
@@ -82,7 +91,7 @@ namespace AlgebraGeometry
                 query.FeedBack = null;
                 RemoveQueryFromCache(query);
                 query.PropertyChanged += query_PropertyChanged;
-                bool result = AddQueryNode(query, out obj);
+                bool result = AddQueryNode(query, out obj, userMode);
                 _preCache.Add(query.QueryQuid, new Tuple<Query, object>(query, obj));
                 if (!result) return null;
                 var qn = obj as QueryNode;
@@ -91,7 +100,7 @@ namespace AlgebraGeometry
             }
             if (equation != null)
             {
-                var eqNode = AddEquationNode(equation);
+                var eqNode = AddEquationNode(equation, userMode);
                 _preCache.Add(equation, eqNode);
                 ReAddQueryNode();
                 return eqNode;
@@ -104,20 +113,35 @@ namespace AlgebraGeometry
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="relNodes"></param>
-        private ShapeNode AddShapeNode(ShapeSymbol shape)
+        /// <param name="userMode"></param>
+        private ShapeNode AddShapeNode(ShapeSymbol shape, bool userMode = false)
         {
             var sn = new ShapeNode(shape);
-            Reify(sn);          //reify shapeNode itself
-            UpdateRelation(sn); //build connection
-            _nodes.Add(sn);
+            if (userMode)
+            {
+                _userNodes.Add(sn);
+            }
+            else
+            {
+                Reify(sn);          //reify shapeNode itself
+                UpdateRelation(sn); //build connection                
+                _nodes.Add(sn);
+            }
             return sn;
         }
 
-        private EquationNode AddEquationNode(Equation equation)
+        private EquationNode AddEquationNode(Equation equation, bool userMode = false)
         {
             var en = new EquationNode(equation);
-            Reify(en);
-            _nodes.Add(en);
+            if (userMode)
+            {
+                _userNodes.Add(en);
+            }
+            else
+            {
+                Reify(en);
+                _nodes.Add(en);                
+            }
             return en;
         }
 
@@ -125,45 +149,64 @@ namespace AlgebraGeometry
         /// Add node onto the graph
         /// </summary>
         /// <param name="goal"></param>
-        private GoalNode AddGoalNode(Goal goal)
+        private GoalNode AddGoalNode(Goal goal, bool userMode = false)
         {
             var gn = new GoalNode(goal);
             var eqGoal = goal as EqGoal;
             Debug.Assert(eqGoal != null);
             Debug.Assert(eqGoal.Rhs != null);
-            Reify(gn);
-            //UpdateRelation(goal);
-            _nodes.Add(gn);
+            if (userMode)
+            {
+                _userNodes.Add(gn);
+            }
+            else
+            {
+                Reify(gn);
+                //UpdateRelation(goal);
+                _nodes.Add(gn);                
+            }
             return gn;
         }
 
-        private bool AddQueryNode(Query query, out object obj)
+        private bool AddQueryNode(Query query, out object obj, bool userMode = false)
         {
             ResetNodeRelatedFlag();
             bool result = ConstraintSatisfy(query, out obj);
             if (!result) return false;
             var qn = obj as QueryNode;
-            _nodes.Add(qn);
+            if (userMode)
+            {
+                _userNodes.Add(qn);
+            }
+            else
+            {
+                _nodes.Add(qn);                
+            }
             return true;
         }
 
-        public void DeleteNode(object obj)
+        public bool DeleteNode(object obj, out bool userInput)
         {
+            userInput = false;
+            bool result = false;
             var shape = obj as ShapeSymbol;
             var goal = obj as EqGoal;
             var query = obj as Query;
-            if (shape != null) DeleteShapeNode(shape);
-            if (goal != null) DeleteGoalNode(goal);
-            if (query != null) DeleteQueryNode(query);
+            if (shape != null) result = DeleteShapeNode(shape, out userInput);
+            if (goal != null)  result = DeleteGoalNode(goal, out userInput);
+            if (query != null) result = DeleteQueryNode(query, out userInput);
             ReAddQueryNode();
+            return result;
         }
 
         /// <summary>
         /// Delete node from the graph
         /// </summary>
         /// <param name="shape"></param>
-        private void DeleteShapeNode(ShapeSymbol shape)
+        /// <param name="userInput"></param>
+        private bool DeleteShapeNode(ShapeSymbol shape, out bool userInput)
         {
+            userInput = false;
             var shapeNode = SearchNode(shape) as ShapeNode;
             if (shapeNode != null)
             {
@@ -173,7 +216,7 @@ namespace AlgebraGeometry
                     var targetNode = outEdge.Target as ShapeNode;
                     if (targetNode != null)
                     {
-                        DeleteShapeNode(targetNode.ShapeSymbol);
+                        DeleteShapeNode(targetNode.ShapeSymbol, out userInput);
                         shapeNode.OutEdges.Remove(outEdge);
                     }
                 }
@@ -185,26 +228,52 @@ namespace AlgebraGeometry
                 }
                 _nodes.Remove(shapeNode);
                 _preCache.Remove(shape);
+                return true;
             }
+
+            var userShapeNode = SearchUserNode(shape) as ShapeNode;
+            if (userShapeNode != null)
+            {
+                //TODO
+                userInput = true;
+                _userNodes.Remove(userShapeNode);
+                _preCache.Remove(shape);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
         /// Delete node from the graph
         /// </summary>
         /// <param name="goal"></param>
-        private void DeleteGoalNode(Goal goal)
+        /// <param name="userInput"></param>
+        private bool DeleteGoalNode(Goal goal, out bool userInput)
         {
+            userInput = false;
             var goalNode = SearchNode(goal) as GoalNode;
             if (goalNode != null)
             {
                 UnReify(goalNode);
                 _nodes.Remove(goalNode);
-                _preCache.Remove(goal);   
+                _preCache.Remove(goal);
+                return true;
             }
+            var userGoalNode = SearchUserNode(goal) as GoalNode;
+            if (userGoalNode != null)
+            {
+                //TODO
+                userInput = true;
+                _userNodes.Remove(userGoalNode);
+                _preCache.Remove(goal);
+                return true;
+            }
+            return false;
         }
 
-        private void DeleteQueryNode(Query query)
+        private bool DeleteQueryNode(Query query, out bool userInput)
         {
+            userInput = false;
             RemoveQueryFromCache(query);
             query.PropertyChanged -= query_PropertyChanged;
             var queryNode = SearchNode(query) as QueryNode;
@@ -225,14 +294,24 @@ namespace AlgebraGeometry
                 }
                 query.CachedEntities.Clear();
                 _nodes.Remove(queryNode);
+                return true;
             }
+            var userQueryNode = SearchUserNode(query) as QueryNode;
+            if (userQueryNode != null)
+            {
+                userInput = true;
+                _userNodes.Remove(userQueryNode);
+                return true;
+            }
+            return false;
         }
 
         void query_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             var query = sender as Query;
-            DeleteNode(query);
-            AddNode(query);
+            bool userInput;
+            DeleteNode(query, out userInput);
+            AddNode(query, userInput);
         }
 
         private void ReAddQueryNode()
@@ -245,8 +324,9 @@ namespace AlgebraGeometry
                     Debug.Assert(tuple2 != null);
                     var query = tuple2.Item1;
                     Debug.Assert(query != null);
-                    DeleteNode(query);
-                    AddNode(query);
+                    bool userInput;
+                    DeleteNode(query, out userInput);
+                    AddNode(query, userInput);
                 }
             }
         }

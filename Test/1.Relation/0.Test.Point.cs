@@ -123,7 +123,8 @@ namespace AlgebraGeometry
 
             /////////////////////////////////////////////
 
-            graph.DeleteNode(eqGoal3);
+            bool userInput;
+            graph.DeleteNode(eqGoal3, out userInput);
             shapes = graph.RetrieveShapeSymbols();
             Assert.True(shapes.Count == 1);
             pt = shapes[0] as PointSymbol;
@@ -142,7 +143,7 @@ namespace AlgebraGeometry
 
             /////////////////////////////////////////////
 
-            graph.DeleteNode(eqGoal2);
+            graph.DeleteNode(eqGoal2, out userInput);
             shapes = graph.RetrieveShapeSymbols();
             Assert.True(shapes.Count == 1);
             pt = shapes[0] as PointSymbol;
@@ -159,7 +160,7 @@ namespace AlgebraGeometry
 
             /////////////////////////////////////////////
 
-            graph.DeleteNode(point);
+            graph.DeleteNode(point, out userInput);
             shapes = graph.RetrieveShapeSymbols();
             Assert.True(shapes.Count == 1);
         }

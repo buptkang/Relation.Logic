@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Linq;
+
 namespace AlgebraGeometry
 {
     using CSharpLogic;
@@ -47,9 +49,14 @@ namespace AlgebraGeometry
                 List<string> strategies;
                 eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
-                
-                ls.Traces.AddRange(steps);
-                ls.StrategyTraces.AddRange(strategies);
+
+                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
+                if (lst.Count == 0)
+                {
+                    ls.Traces.AddRange(steps);
+                    ls.StrategyTraces.AddRange(strategies);
+                }
+                if (steps == null || steps.Count == 0) return true;
                 ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }
@@ -60,8 +67,13 @@ namespace AlgebraGeometry
                 List<string> strategies;
                 eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
-                ls.Traces.AddRange(steps);
-                ls.StrategyTraces.AddRange(strategies);
+                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
+                if (lst.Count == 0)
+                {
+                    ls.Traces.AddRange(steps);
+                    ls.StrategyTraces.AddRange(strategies);
+                }
+                if (steps == null || steps.Count == 0) return true;
                 ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }
@@ -75,8 +87,13 @@ namespace AlgebraGeometry
                 List<string> strategies;
                 eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
-                ls.Traces.AddRange(steps);
-                ls.StrategyTraces.AddRange(strategies);
+                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
+                if (lst.Count == 0)
+                {
+                    ls.Traces.AddRange(steps);
+                    ls.StrategyTraces.AddRange(strategies);
+                }
+                if (steps == null || steps.Count == 0) return true;
                 ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
                 return true;
             }

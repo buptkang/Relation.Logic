@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Linq;
+
 namespace AlgebraGeometry
 {
     using CSharpLogic;
@@ -211,13 +213,13 @@ namespace AlgebraGeometry
             string strategy;
             inputLineSymbol.FromLineGeneralFormToSlopeInterceptTrace(ls, out steps, out strategy);
 
-            if (!line.StrategyShowed)
+            List<string> lst = ls.StrategyTraces.Intersect(inputLineSymbol.StrategyTraces).ToList();
+            if (lst.Count ==0)
             {
-               ls.Traces.AddRange(inputLineSymbol.Traces);
-               ls.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
-               line.StrategyShowed = true;
+                ls.Traces.AddRange(inputLineSymbol.Traces);
+                ls.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);                
             }
-           
+  
             ls.Traces.AddRange(steps);
             ls.StrategyTraces.Add(strategy);
             return ls;
@@ -250,13 +252,6 @@ namespace AlgebraGeometry
             //Pre-processing
             if (inputLineSymbol.OutputType == LineType.GeneralForm)
             {
-                if (!line.StrategyShowed)
-                {
-                    goal.Traces.AddRange(inputLineSymbol.Traces);
-                    goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
-                    line.StrategyShowed = true;
-                }
-
                 currLineSymbol = inputLineSymbol.InferSlopeInterceptForm();
                 //transform
                 goal.Traces.AddRange(currLineSymbol.Traces);
@@ -264,22 +259,10 @@ namespace AlgebraGeometry
             }
             else if (inputLineSymbol.OutputType == LineType.Relation)
             {
-                if (!line.StrategyShowed)
-                {
-                    goal.Traces.AddRange(inputLineSymbol.Traces);
-                    goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
-                    line.StrategyShowed = true;
-                }
+                List<string> lst = goal.StrategyTraces.Intersect(inputLineSymbol.StrategyTraces).ToList();
                 //TODO
                 /*  var newGoal = new EqGoal(egGoal.Lhs, line.Slope);
                   egGoal.CachedEntities.Add(newGoal);*/
-            }
-
-            if (!line.StrategyShowed)
-            {
-                goal.Traces.AddRange(inputLineSymbol.Traces);
-                goal.StrategyTraces.AddRange(inputLineSymbol.StrategyTraces);
-                line.StrategyShowed = true;
             }
 
             List<TraceStep> steps;
