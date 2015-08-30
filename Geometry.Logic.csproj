@@ -52,8 +52,8 @@
     <Compile Include="Geometry.Shapes\LineSegment.Trace.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.Eval.cs" />
-    <Compile Include="RelationGraph\Graph.UserModel.cs" />
     <Compile Include="RelationGraph\Graph.Unify.Search.cs" />
+    <Compile Include="RelationGraph\Graph.UserModel.cs" />
     <Compile Include="Test\2.Problems\Test_Scenario_5.cs" />
     <Content Include="RelationGraph\Inference.ConstraintEval.txt" />
     <Compile Include="RelationGraph\Graph.Unify.cs" />

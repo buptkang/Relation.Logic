@@ -32,6 +32,7 @@ namespace AlgebraGeometry
         [Test]
         public void TestScenario5_input()
         {
+            //test
             //(2*y)+(2*x)+(-1*y)+(2*x)+4=0
             var x = new Var('x');
             var y = new Var('y');
