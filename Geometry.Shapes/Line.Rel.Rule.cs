@@ -29,7 +29,7 @@ namespace AlgebraGeometry
             Debug.Assert(pt1.Concrete);
             Debug.Assert(pt2.Concrete);
 
-            if (pt1.XCoordinate.Equals(pt2.XCoordinate))
+           /* if (pt1.XCoordinate.Equals(pt2.XCoordinate))
             {
                 double d;
                 LogicSharp.IsDouble(pt1.XCoordinate, out d);
@@ -43,7 +43,7 @@ namespace AlgebraGeometry
                 LogicSharp.IsDouble(pt1.YCoordinate, out d);
                 var line2 = new Line(null, 1, -1 * d);
                 return new LineSymbol(line2);
-            }
+            }*/
 
             //Strategy: y = mx+b, find slope m and intercept b
             //step 1: calc slope
@@ -53,28 +53,32 @@ namespace AlgebraGeometry
             LogicSharp.IsDouble(pt1.YCoordinate, out p1y);
             LogicSharp.IsDouble(pt2.XCoordinate, out p2x);
             LogicSharp.IsDouble(pt2.YCoordinate, out p2y);
-            double slope = (p2y - p1y) / (p2x - p1x);
 
-            //step2: substitute slope into the slope-intercept form
-            //y = slope*x+b
 
-            //step3: calc intercept of the line
-            double b = p2y - slope * p2x;
+            var a = p1y - p2y;
+            var b = p2x - p1x;
+            var c = (p1x - p2x)*p1y + (p2y - p1y)*p1x;
 
-            //step4: get the line equation
-            //y = slope*x+b
+            int intB;
+            int intC;
+            bool cond1 = LogicSharp.IsInt(b/a, out intB);
+            bool cond2 = LogicSharp.IsInt(c/a, out intC);
 
-            //TODO trace
-            Line line = null;
-            if (Math.Abs(slope) < 0.0001)
+            if (cond1 && cond2)
             {
-                line = new Line(null, -1, b);
+                a = 1;
+                b = intB;
+                c = intC;
             }
-            else
+
+            if (a < 0.0d)
             {
-                line = new Line(slope, -1, b);
+                a = -1*a;
+                b = -1*b;
+                c = -1*c;
             }
-            line.InputType = LineType.Relation;
+
+            var line = new Line(a,b,c) {InputType = LineType.Relation}; 
             return new LineSymbol(line);
         }
 
@@ -84,9 +88,29 @@ namespace AlgebraGeometry
         /// <param name="pt"></param>
         /// <param name="goal"></param>
         /// <returns></returns>
-        public static LineSymbol GenerateLine(Point pt, EqGoal goal)
+        public static LineSymbol GenerateLine(Point pt, double? slope, double? intercept)
         {
-            throw new Exception("TODO");
+            Debug.Assert(pt.Concrete);
+            double X, Y;
+            LogicSharp.IsDouble(pt.XCoordinate, out X);
+            LogicSharp.IsDouble(pt.YCoordinate, out Y);
+
+            if (slope != null)
+            {
+                double intercept1 = Y - slope.Value * X;
+                var line = new Line(slope, intercept1);
+                line.InputType = LineType.Relation;
+                return new LineSymbol(line);  
+            }
+            if (intercept != null)
+            {
+                double slope1 = 0.0;
+                slope1 = (Y - intercept.Value) / X;
+                var line = new Line(slope1, intercept);
+                line.InputType = LineType.Relation;
+                return new LineSymbol(line);  
+            }
+            throw new Exception("Cannot reach here!");
         }
 
         /// <summary>

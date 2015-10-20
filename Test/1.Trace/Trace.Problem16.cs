@@ -16,23 +16,27 @@
 
 namespace AlgebraGeometry
 {
-    using System.Diagnostics;
+    using CSharpLogic;
+    using NUnit.Framework;
+    using System.Collections.Generic;
+    using System.Linq;
 
-    public static class LineSegmentGenerationRule
+    [TestFixture]
+    public partial class TestTrace
     {
-        public static LineSegmentSymbol GenerateLineSegment(Point pt1, Point pt2)
+        [Test]
+        public void Problem16()
         {
-            if (pt1.Equals(pt2)) return null;
-            Debug.Assert(pt1.Concrete);
-            Debug.Assert(pt2.Concrete);
-            var ls  = new LineSegment(pt1, pt2);
-            var lss = new LineSegmentSymbol(ls);
-            if(pt1.Traces.Count != 0) lss.Traces.AddRange(pt1.Traces);
-            if(pt2.Traces.Count != 0) lss.Traces.AddRange(pt2.Traces);
-            TraceInstructionalDesign.FromPointsToLineSegment(lss);
-            return lss;
-        }
+            var pt1 = new Point(-1, 2);
+            var ps1 = new PointSymbol(pt1);
 
-        public static string IdentityPoints = "Cannot build the line as two identify points!";
+            var pt2 = new Point(5, 8);
+            var ps2 = new PointSymbol(pt2);
+
+            var pt3 = new Point(2, 4);
+            var midPoint = new PointSymbol(pt3);
+
+            TraceInstructionalDesign.FromPointsToMidPoint(ps1, ps2, midPoint);
+        }
     }
 }

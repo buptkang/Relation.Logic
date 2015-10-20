@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System;
+
 namespace AlgebraGeometry
 {
     using CSharpLogic;
@@ -22,180 +24,51 @@ namespace AlgebraGeometry
     using System.Linq;
 
     [TestFixture]
-    public partial class TestPoint
+    public partial class TestPointRelation
     {
         [Test]
-        public void TestGraph_1()
+        public void Test_Unify_1()
         {
-            var graph = new RelationGraph();
             //true positive
             var x = new Var('x');
             var y = new Var('y');
             var point = new Point(x, y);
             var ps = new PointSymbol(point);
-            graph.AddNode(ps);
-            Assert.True(graph.Nodes.Count == 1);
-            var eqGoal = new EqGoal(x, 1); // x=1
-            graph.AddNode(eqGoal);
+            var shapeNode = new ShapeNode(ps);
 
-            List<ShapeSymbol> shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            var pt = shapes[0] as PointSymbol;
-            Assert.NotNull(pt);
-            Assert.True(pt.Equals(ps));
-            Assert.True(pt.CachedGoals.Count == 1);
-            Assert.True(pt.CachedSymbols.Count == 1);
-            var gPointSymbol = pt.CachedSymbols.ToList()[0] as PointSymbol;
-            Assert.NotNull(gPointSymbol);
-            var gPoint = gPointSymbol.Shape as Point;
-            Assert.NotNull(gPoint);
-            Assert.False(gPoint.Concrete);
-            Assert.True(1.0.Equals(gPoint.XCoordinate));
-            Assert.True(y.Equals(gPoint.YCoordinate));
+            var eqGoal  = new EqGoal(x, 1); // x=1
 
-            /******
-             * current status:
-             * (1,y)
-             * 
-             * next input:
-             * x = 2
-            ****/
+            object obj;
+            bool result = RelationLogic.ConstraintCheck(shapeNode, eqGoal, null, out obj);
+            Assert.True(result);
+            Assert.NotNull(obj);
 
-            var eqGoal1 = new EqGoal(x, 2); // x=2
-            graph.AddNode(eqGoal1);
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            pt = shapes[0] as PointSymbol;
-            Assert.NotNull(pt);
-            Assert.True(pt.Equals(ps));
-            Assert.True(pt.CachedGoals.Count == 2);
-            Assert.True(pt.CachedSymbols.Count == 2);
-            Assert.False(point.Concrete);
-
-            /******
-            * current status:
-            * (1,y)
-            * (2,y)
-            * 
-            * next input:
-            * y = 1
-            ****/
-
-            var eqGoal2 = new EqGoal(y, 1); // y = 1
-            graph.AddNode(eqGoal2);
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            pt = shapes[0] as PointSymbol;
-            Assert.False(point.Concrete);
-            Assert.True(ps.CachedGoals.Count == 3);
-            Assert.True(ps.CachedSymbols.Count == 2);
-            foreach (var ss in ps.CachedSymbols)
-            {
-                Assert.True(ss.Shape.Concrete);
-            }
-
-            var goals = graph.RetrieveGoals();
-            Assert.True(goals.Count == 3);
-
-            /******
-             * current status:
-             * (1,1)
-             * (2,1)
-             * 
-             * next input:
-             * y = 2
-             ****/
-
-            var eqGoal3 = new EqGoal(y, 2); // y = 2
-            graph.AddNode(eqGoal3);
-
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            ps = shapes[0] as PointSymbol;
-            Assert.NotNull(ps);
-            Assert.False(ps.Shape.Concrete);
-            Assert.True(ps.CachedGoals.Count == 4);
-            Assert.True(ps.CachedSymbols.Count == 4);
-            foreach (var css in ps.CachedSymbols)
-            {
-                Assert.True(css.Shape.Concrete);
-            }
-
-            /////////////////////////////////////////////
-
-            bool userInput;
-            graph.DeleteNode(eqGoal3, out userInput);
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            pt = shapes[0] as PointSymbol;
-            Assert.NotNull(pt);
-            Assert.False(pt.Shape.Concrete);
-            Assert.True(pt.CachedGoals.Count == 3);
-            Assert.True(pt.CachedSymbols.Count == 2);
-            foreach (var ss in pt.CachedSymbols)
-            {
-                Assert.True(ss.Shape.Concrete);
-            }
-
-            goals = graph.RetrieveGoals();
-            Assert.True(goals.Count == 3);
-
-
-            /////////////////////////////////////////////
-
-            graph.DeleteNode(eqGoal2, out userInput);
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            pt = shapes[0] as PointSymbol;
-            Assert.NotNull(pt);
-            Assert.False(pt.Shape.Concrete);
-            Assert.True(pt.CachedGoals.Count == 2);
-            Assert.True(pt.CachedSymbols.Count == 2);
-            foreach (var shape in pt.CachedSymbols)
-            {
-                Assert.False(shape.Shape.Concrete);
-            }
-            goals = graph.RetrieveGoals();
-            Assert.True(goals.Count == 2);
-
-            /////////////////////////////////////////////
-
-            graph.DeleteNode(point, out userInput);
-            shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
+            var lst = obj as List<Tuple<object, object>>;
+            Assert.NotNull(lst);
+            Assert.True(lst.Count == 1);
+            var tuple = lst[0];
+            Assert.True(tuple.Item1.Equals(shapeNode));
+            Assert.True(tuple.Item2.Equals(eqGoal));
         }
 
-
         [Test]
-        public void TestGraph_2()
+        public void Test_Unify_2()
         {
-            var graph = new RelationGraph();
             //true positive
             var x = new Var('x');
-            var y = new Var('y');
-            var point = new Point(x, 2);
+            var point = new Point(x, 4);
             var ps = new PointSymbol(point);
-            graph.AddNode(ps);
-            Assert.True(graph.Nodes.Count == 1);
-            var eqGoal = new EqGoal(x, 1); // x=1
-            graph.AddNode(eqGoal);
+            var shapeNode = new ShapeNode(ps);
 
-            List<ShapeSymbol> shapes = graph.RetrieveShapeSymbols();
-            Assert.True(shapes.Count == 1);
-            var pt = shapes[0] as PointSymbol;
-            Assert.NotNull(pt);
-            Assert.True(pt.Equals(ps));
-            Assert.True(pt.CachedGoals.Count == 1);
-            Assert.True(pt.CachedSymbols.Count == 1);
-            var gPointSymbol = pt.CachedSymbols.ToList()[0] as PointSymbol;
-            Assert.NotNull(gPointSymbol);
-            var gPoint = gPointSymbol.Shape as Point;
-            Assert.NotNull(gPoint);
-            Assert.True(gPoint.Concrete);
-            Assert.True(1.0.Equals(gPoint.XCoordinate));
-            Assert.True(2.0.Equals(gPoint.YCoordinate));
+            var point1 = new Point(4, 5);
+            var ps1 = new PointSymbol(point1);
+            var shapeNode1 = new ShapeNode(ps1);
+
+            var eqGoal = new EqGoal(x, 9);
+
+            object obj;
+            bool result = RelationLogic.ConstraintCheck(shapeNode, shapeNode1, eqGoal, null, out obj);
+            Assert.False(result);
         }
     }
 }
-
-

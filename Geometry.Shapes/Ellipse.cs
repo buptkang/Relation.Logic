@@ -36,6 +36,167 @@ namespace AlgebraGeometry
         //            RadiusAlongXAxis = _radiusAlongXAxis;
         //            RadiusAlongYAxis = _radiusAlongYAxis;
         //        }
+
+        /* public List<AGKnowledgeTracer> EllipseFociPtTrace
+         {
+             get
+             {
+                 var ellipse = AGShape as Ellipse;
+                 var composite = new CompositeExpr(new WordSym("Ellipse Radius:"), new Expr[]
+                 {
+                     EllipseRadiusAExpr, EllipseRadiusBExpr
+                 });
+
+                 Expr fociTraceExpr1 = starPadSDK.MathExpr.Text.Convert(ellipse.FociTrace1);
+                 Expr fociTraceExpr2 = starPadSDK.MathExpr.Text.Convert(ellipse.FociTrace2);
+
+                 var lst = new List<AGKnowledgeTracer>()
+                 {
+                     new AGKnowledgeTracer(GeneralExpr, EllipseCenterPtExpr, AGKnowledgeHints.EllipseCenterHint),
+                     new AGKnowledgeTracer(GeneralExpr, composite, AGKnowledgeHints.EllipseRadiusHint),
+                     new AGKnowledgeTracer(composite, fociTraceExpr1, AGKnowledgeHints.EllipseFociHint),
+                     new AGKnowledgeTracer(fociTraceExpr1, fociTraceExpr2, AGKnowledgeHints.EllipseFociHint),
+                     new AGKnowledgeTracer(fociTraceExpr2, EllipseFociCExpr, AGKnowledgeHints.EllipseFociHint),
+                     new AGKnowledgeTracer(EllipseFociCExpr, EllipseFociPtExpr, AGKnowledgeHints.EllipseFociPoint)
+                 };
+
+                 return lst;
+             }
+         }
+
+         public List<AGKnowledgeTracer> EllipseStandardFormTrace
+         {
+             get
+             {
+                 var ellipse = AGShape as Ellipse;
+                 return AGLogicSharp.Instance.TransformEllipseFromGeneralFormToStandardForm(this);
+             }
+         }
+         * 
+  public List<AGKnowledgeTracer> EllipseCentralPtTrace
+         {
+             get
+             {
+                 var lst = new List<AGKnowledgeTracer>()
+                 {
+                    new AGKnowledgeTracer(GeneralExpr, EllipseCenterPtExpr, AGKnowledgeHints.EllipseCenterHint)
+                 };
+                 return lst;
+             }
+         }
+
+         public List<AGKnowledgeTracer> EllipseRadiusTrace
+         {
+             get
+             {
+                 var composite = new CompositeExpr(new WordSym("Ellipse Radius:"), new Expr[]
+                 {
+                     EllipseRadiusAExpr, EllipseRadiusBExpr
+                 });
+
+                 var lst = new List<AGKnowledgeTracer>()
+                 {
+                    new AGKnowledgeTracer(GeneralExpr, composite, AGKnowledgeHints.EllipseRadiusHint)
+                 };
+                 return lst;
+             }
+         }
+
+         public List<AGKnowledgeTracer> EllipseFociTrace
+         {
+             get
+             {
+                 var ellipse = AGShape as Ellipse;
+                 var composite = new CompositeExpr(new WordSym("Ellipse Radius:"), new Expr[]
+                 {
+                     EllipseRadiusAExpr, EllipseRadiusBExpr
+                 });
+
+                 Expr fociTraceExpr1 = starPadSDK.MathExpr.Text.Convert(ellipse.FociTrace1);
+                 Expr fociTraceExpr2 = starPadSDK.MathExpr.Text.Convert(ellipse.FociTrace2);
+
+                 var lst = new List<AGKnowledgeTracer>()
+                 {
+                     new AGKnowledgeTracer(GeneralExpr, EllipseCenterPtExpr, AGKnowledgeHints.EllipseCenterHint),
+                     new AGKnowledgeTracer(GeneralExpr, composite, AGKnowledgeHints.EllipseRadiusHint),
+                     new AGKnowledgeTracer(composite, fociTraceExpr1, AGKnowledgeHints.EllipseFociHint),
+                     new AGKnowledgeTracer(fociTraceExpr1, fociTraceExpr2, AGKnowledgeHints.EllipseFociHint),
+                     new AGKnowledgeTracer(fociTraceExpr2, EllipseFociCExpr, AGKnowledgeHints.EllipseFociHint),
+                 };
+
+                 return lst;
+             }
+         }
+
+       public Expr EllipseCenterPtExpr
+        {
+            get
+            {
+                var ellipse = AGShape as Ellipse;
+
+                var expr = new CompositeExpr(new WordSym("Ellipse CentralPoint:"), new Expr[]
+                {
+                    new WordSym(ellipse.CentralPt.SymXCoordinate),
+                    new WordSym(ellipse.CentralPt.SymYCoordinate),
+                });
+
+                //return starPadSDK.MathExpr.Text.Convert(ellipse.CentralPt.SymPoint);
+                return expr;
+            }
+        }
+
+        public Expr EllipseRadiusAExpr
+        {
+            get
+            {
+                var ellipse = AGShape as Ellipse;
+                return starPadSDK.MathExpr.Text.Convert(ellipse.SymRadiusAProperty);                
+            }
+        }
+
+        public Expr EllipseRadiusBExpr 
+        {
+            get
+            {
+                var ellipse = AGShape as Ellipse;
+                return starPadSDK.MathExpr.Text.Convert(ellipse.SymRadiusBProperty);                
+            }
+        }
+
+        public Expr EllipseFociCExpr
+        {
+            get
+            {
+                var ellipse = AGShape as Ellipse;
+                return starPadSDK.MathExpr.Text.Convert(ellipse.SymFociCProperty);                
+            }
+        }
+
+        public Expr EllipseFociPtExpr
+        {
+            get
+            {
+                var ellipse = AGShape as Ellipse;
+                Expr leftFoci  = starPadSDK.MathExpr.Text.Convert(ellipse.FocalPoint1);
+                Expr rightFoci = starPadSDK.MathExpr.Text.Convert(ellipse.FocalPoint2);
+                return new CompositeExpr(new WordSym("FPs:"), new Expr[]
+                {
+                    leftFoci,rightFoci
+                });               
+            }
+        }
+
+        public Expr EllipseStandardFormExpr
+        {
+            get 
+            { 
+                var ellipse = AGShape as Ellipse;
+                return starPadSDK.MathExpr.Text.Convert(ellipse.EllipseStandardForm);
+            }
+        }
+         */
+
+
     }
 
     public class EllipseSymbol : ShapeSymbol
@@ -55,6 +216,26 @@ namespace AlgebraGeometry
         }
 
         public override bool UnifyProperty(string label, out object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyExplicitProperty(EqGoal goal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyProperty(EqGoal goal, out object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyShape(ShapeSymbol ss)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ApproximateMatch(object obj)
         {
             throw new NotImplementedException();
         }

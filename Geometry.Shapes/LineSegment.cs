@@ -202,6 +202,23 @@ namespace AlgebraGeometry
             return true;
         }
 
+        public override bool UnifyExplicitProperty(EqGoal goal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyProperty(EqGoal goal, out object obj)
+        {
+            obj = this.Unify(goal);
+            if (obj == null) return false;
+            return true;
+        }
+
+        public override bool UnifyShape(ShapeSymbol ss)
+        {
+            return false;
+        }
+
         public override object RetrieveConcreteShapes()
         {
             var lineSeg = Shape as LineSegment;
@@ -217,11 +234,26 @@ namespace AlgebraGeometry
 
         public override string ToString()
         {
+            if (Shape.Label != null)
+            {
+                return Shape.Label;
+            }
             return "LineSegment";
         }
 
         public LineSegmentType OutputType { get; set; }
 
         public override object GetOutputType() { return OutputType; }
+
+        public override bool ApproximateMatch(object obj)
+        {
+            var label = obj as string;
+            if (label != null)
+            {
+                if (Shape.Label == null) return false;
+                return Shape.Label.Equals(label);
+            }
+            return false;
+        }
     }
 }

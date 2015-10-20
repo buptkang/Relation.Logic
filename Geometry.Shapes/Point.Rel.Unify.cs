@@ -16,23 +16,30 @@
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
-    public static class LineSegmentGenerationRule
+    public static class PointBinaryRelation
     {
-        public static LineSegmentSymbol GenerateLineSegment(Point pt1, Point pt2)
+        public static object Unify(PointSymbol pt1, PointSymbol pt2, EqGoal goal = null)
         {
+            //point identify check
             if (pt1.Equals(pt2)) return null;
-            Debug.Assert(pt1.Concrete);
-            Debug.Assert(pt2.Concrete);
-            var ls  = new LineSegment(pt1, pt2);
-            var lss = new LineSegmentSymbol(ls);
-            if(pt1.Traces.Count != 0) lss.Traces.AddRange(pt1.Traces);
-            if(pt2.Traces.Count != 0) lss.Traces.AddRange(pt2.Traces);
-            TraceInstructionalDesign.FromPointsToLineSegment(lss);
-            return lss;
-        }
 
-        public static string IdentityPoints = "Cannot build the line as two identify points!";
+            //Mid-point build process
+            if (pt1.Shape.Concrete && pt2.Shape.Concrete)
+            {
+                var point1 = pt1.Shape as Point;
+                var point2 = pt2.Shape as Point;
+                Debug.Assert(point1 != null);
+                Debug.Assert(point2 != null);
+                var midPoint = PointGenerationRule.GenerateMidPoint(point1, point2);
+                TraceInstructionalDesign.FromPointsToMidPoint(pt1, pt2, midPoint);
+                return midPoint;
+            }
+            return null;
+        }
     }
 }

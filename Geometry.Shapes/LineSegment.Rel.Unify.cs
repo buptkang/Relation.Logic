@@ -43,6 +43,7 @@ namespace AlgebraGeometry
                         var cachePoint = ps.Shape as Point;
                         Debug.Assert(cachePoint != null);
                         var gLss = LineSegmentGenerationRule.GenerateLineSegment(point1, cachePoint);
+                        gLss.Traces.AddRange(ps.Traces);
                         lss.CachedSymbols.Add(gLss);
                     }
                 }
@@ -61,6 +62,7 @@ namespace AlgebraGeometry
                         var cachePoint = ps.Shape as Point;
                         Debug.Assert(cachePoint != null);
                         var gLss = LineSegmentGenerationRule.GenerateLineSegment(cachePoint, point2);
+                        gLss.Traces.AddRange(ps.Traces);
                         lss.CachedSymbols.Add(gLss);
                     }
                 }
@@ -83,6 +85,8 @@ namespace AlgebraGeometry
                     var cachePoint2 = ps2.Shape as Point;
                     Debug.Assert(cachePoint2 != null);
                     var gLss = LineSegmentGenerationRule.GenerateLineSegment(cachePoint1, cachePoint2);
+                    gLss.Traces.AddRange(ps1.Traces);
+                    gLss.Traces.AddRange(ps2.Traces);
                     lss.CachedSymbols.Add(gLss);
                 }
             }
@@ -94,44 +98,55 @@ namespace AlgebraGeometry
     {
         public static object Unify(this LineSegmentSymbol lss, object constraint)
         {
-            var refObj = constraint as string;
-            Debug.Assert(refObj != null);
+            var label  = constraint as string;
+            var eqGoal = constraint as EqGoal;
 
-            switch (refObj)
+            //forward solving
+            if (label != null)
             {
-                case LineSegmentAcronym.Distance1:
-                case LineSegmentAcronym.Distance2:
-                    return lss.InferDistance(refObj);
+                switch (label)
+                {
+                    case LineSegmentAcronym.Distance1:
+                    case LineSegmentAcronym.Distance2:
+                        return lss.InferDistance(label);
+                }                
             }
 
+            //backward solving
+            if (eqGoal != null)
+            {
+                var rhs = eqGoal.Rhs;
+                double dNum;
+                bool isDouble = LogicSharp.IsDouble(rhs, out dNum);
+                if (!isDouble) return null;
+
+                var lhs = eqGoal.Lhs.ToString();
+                switch (lhs)
+                {
+                    case LineSegmentAcronym.Distance1:
+                    case LineSegmentAcronym.Distance2:
+                        return lss.InferDistance(dNum);
+                }
+            }
             return null;
         }
 
+        //forward solving
         private static object InferDistance(this LineSegmentSymbol inputLineSymbol, string label)
         {
             var lineSeg = inputLineSymbol.Shape as LineSegment;
             Debug.Assert(lineSeg != null);
 
-            if (lineSeg.Distance != null)
+            if (label != null && lineSeg.Distance != null)
             {
-                var lst = new List<object>();
-
                 var goal = new EqGoal(new Var(label), lineSeg.Distance);
-                var steps = inputLineSymbol.FromLineSegmentToDistance(lineSeg, goal);
-                if (goal.Traces != null)
-                {
-                    goal.Traces.AddRange(steps);
-                }
-                else
-                {
-                    goal.Traces = steps;
-                }
+                TraceInstructionalDesign.FromLineSegmentToDistance(inputLineSymbol);
+                goal.Traces.AddRange(inputLineSymbol.Traces);
                 return goal;
             }
-
-            if (inputLineSymbol.CachedSymbols.Count != 0)
+            if (label != null && inputLineSymbol.CachedSymbols.Count != 0)
             {
-                var goalList = new List<EqGoal>();
+                var goalList = new List<object>();
                 foreach (var lss in inputLineSymbol.CachedSymbols)
                 {
                     var cachedLss = lss as LineSegmentSymbol;
@@ -139,21 +154,20 @@ namespace AlgebraGeometry
                     var cachedLs = cachedLss.Shape as LineSegment;
                     Debug.Assert(cachedLs != null);
                     var goal = new EqGoal(new Var(label), cachedLs.Distance);
-                    var steps = inputLineSymbol.FromLineSegmentToDistance(cachedLs, goal);
-                    if (goal.Traces != null)
-                    {
-                        goal.Traces.AddRange(steps);
-                    }
-                    else
-                    {
-                        goal.Traces = steps;
-                    }
+                    //goal.Traces.AddRange(cachedLss.Traces);
+                    TraceInstructionalDesign.FromLineSegmentToDistance(cachedLss);
+                    goal.Traces.AddRange(cachedLss.Traces);
                     goalList.Add(goal);
                 }
                 return goalList;
             }
-
             return null;
+        }
+
+        //backward solving
+        private static object InferDistance(this LineSegmentSymbol inputLineSymbol, double value)
+        {
+            return TraceInstructionalDesign.FromLineSegmentToDistance(inputLineSymbol, value);
         }
     }
 }

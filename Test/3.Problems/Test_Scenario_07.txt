@@ -16,6 +16,7 @@
 
 namespace AlgebraGeometry
 {
+    using System.Linq;
     using CSharpLogic;
     using NUnit.Framework;
     using System;
@@ -25,32 +26,13 @@ namespace AlgebraGeometry
     public partial class TestProblemSolvingScenarios
     {
         /*
-         * There exists two points A(2,4) and B(5,v), the distance between A and B is 5. 
-         *  What is the value of v?
+         * Problem 7: The points (3,v) and (2,0) fall on a line with a slope of 10. What is the value of v?
          */
+
         [Test]
-        public void TestScenario_2()
+        public void TestScenario_7_WorkedExample_1()
         {
-            var pt1 = new Point("A", 2, 4);
-            var pt1Symbol = new PointSymbol(pt1);
-            var v = new Var("v");
-            var pt2 = new Point("B", 5, v);
-            var pt2Symbol = new PointSymbol(pt2);
-
-            var graph = new RelationGraph();
-            graph.AddNode(pt1Symbol);
-            graph.AddNode(pt2Symbol);
-
-            var d = new Var("d");
-            var eqGoal = new EqGoal(d, 5);
-            graph.AddNode(eqGoal);
-            Assert.True(eqGoal.CachedEntities.Count == 2);
-
-            var query = new Query("v");
-            var queryNode = graph.AddNode(query) as QueryNode;
-            Assert.Null(queryNode);
-            Assert.True(query.Success);
-            Assert.True(query.CachedEntities.Count == 2);
+          
         }
     }
 }

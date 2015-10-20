@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Text;
+
 namespace AlgebraGeometry
 {
     using System.Collections.Generic;
@@ -25,6 +27,8 @@ namespace AlgebraGeometry
         public const string X1 = "X";
         public const string Y = "y";
         public const string Y1 = "Y";
+
+        public const string MidPoint = "MidP";
     }
 
     public static class LineAcronym
@@ -40,12 +44,12 @@ namespace AlgebraGeometry
 
         public const string Slope1 = "m";
         public const string Slope2 = "s";
-        public const string Slope3 = "S";
+        public const string Slope3 = "M";
 
         public const string Intercept1 = "k";
-        public const string Intercept2 = "I";
+        public const string Intercept2 = "K";
         public const string Intercept3 = "i";
-
+        
         public const string GeneralForm1 = "lineG";
         public const string GeneralForm2 = "line-G";
         public const string GeneralForm3 = "line-ABC";
@@ -62,6 +66,38 @@ namespace AlgebraGeometry
             return label.Equals(SlopeInterceptForm1) ||
                    label.Equals(SlopeInterceptForm2);
         }
+
+        public static bool EqualSlopeLabels(string label)
+        {
+            char[] arr = label.ToCharArray();
+
+            if (arr.Length == 1)
+            {
+                Debug.Assert(label != null);
+                return label.Equals(Slope1) ||
+                       label.Equals(Slope2) ||
+                       label.Equals(Slope3);
+            }
+            return arr[0].ToString().Equals(Slope1) ||
+                   arr[0].ToString().Equals(Slope2) ||
+                   arr[0].ToString().Equals(Slope3);
+        }
+
+        public static bool EqualInterceptLabels(string label)
+        {
+            char[] arr = label.ToCharArray();
+            if (arr.Length == 1)
+            {
+                Debug.Assert(label != null);
+                return label.Equals(Intercept1) ||
+                       label.Equals(Intercept2) ||
+                       label.Equals(Intercept3);
+            }
+            return arr[0].ToString().Equals(Intercept1) ||
+                   arr[0].ToString().Equals(Intercept2) ||
+                   arr[0].ToString().Equals(Intercept3);
+        }
+
 
         public static bool EqualGeneralFormLabels(string label)
         {
@@ -83,6 +119,8 @@ namespace AlgebraGeometry
         public const string Distance1 = "d";
         public const string Distance2 = "D";
 
+        public const string GeneralForm = "lineSegG";
+
         public static bool EqualDistanceLabel(string label)
         {
             Debug.Assert(label != null);
@@ -99,7 +137,7 @@ namespace AlgebraGeometry
 
         public static bool EqualDefaultLabel(string label)
         {
-            Debug.Assert(label != null);
+            if (label == null) return false;
 
             return label.StartsWith(LineDefault)
                    || label.StartsWith(PointDefault)

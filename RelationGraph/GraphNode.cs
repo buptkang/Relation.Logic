@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Diagnostics;
+
 namespace AlgebraGeometry
 {
     using System;
@@ -24,7 +26,7 @@ namespace AlgebraGeometry
     using System.ComponentModel;
     using CSharpLogic;
 
-    public abstract class GraphNode : INotifyPropertyChanged
+    public abstract class GraphNode 
     {
         private List<GraphEdge> _inEdges;
         public List<GraphEdge> InEdges
@@ -43,26 +45,11 @@ namespace AlgebraGeometry
         {
             _inEdges = new List<GraphEdge>();
             _outEdges = new List<GraphEdge>();
+            Synthesized = false;
         }
 
         public bool Related { get; set; }
-
-        #region Dynamic System
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        // This method is called by the Set accessor of each property. 
-        // The CallerMemberName attribute that is applied to the optional propertyName 
-        // parameter causes the property name of the caller to be substituted as an argument. 
-        protected void NotifyPropertyChanged(String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion
+        public bool Synthesized { get; set; }
     }
 
     public class EquationNode : GraphNode
@@ -92,7 +79,6 @@ namespace AlgebraGeometry
             get { return _shape; }
             set
             {
-                NotifyPropertyChanged("Shape");
                 _shape = value;
             }
         }
@@ -271,6 +257,37 @@ namespace AlgebraGeometry
             return false;
         }
 
+        public static bool Satisfy(this EquationNode eqNode, Var variable)
+        {
+            var equation = eqNode.Equation;
+
+            var lhsTerm = equation.Lhs as Term;
+            if (lhsTerm != null)
+            {
+                if (lhsTerm.ContainsVar(variable)) return true;
+            }
+
+            var lhsVar = equation.Lhs as Var;
+            if (lhsVar != null)
+            {
+                if (lhsVar.Equals(variable)) return true;
+            }
+
+            var rhsTerm = equation.Rhs as Term;
+            if (rhsTerm != null)
+            {
+                if (rhsTerm.ContainsVar(variable)) return true;
+            }
+
+            var rhsVar = equation.Rhs as Var;
+            if (rhsVar != null)
+            {
+                if (rhsVar.Equals(variable)) return true;
+            }
+
+            return false;
+        }
+
         public static bool Satisfy(this GoalNode goalNode, string variable)
         {
             var eqGoal = goalNode.Goal as EqGoal;
@@ -279,6 +296,22 @@ namespace AlgebraGeometry
                 return eqGoal.Lhs.ToString().Equals(variable);
             }
             return false;
+        }
+
+        public static bool Satisfy(this GoalNode goalNode, Equation eq)
+        {
+            var goal = goalNode.Goal as EqGoal;
+            Debug.Assert(goal != null);
+            if (!goal.Concrete) return false;
+            var goalVar = goal.Lhs as Var;
+            Debug.Assert(goalVar != null);
+            return eq.ContainsVar(goalVar);
+        }
+
+        public static bool Satisfy(this EquationNode eqNode, string variable)
+        {
+            var newVar = new Var(variable);
+            return eqNode.Satisfy(newVar);
         }
     }
 }

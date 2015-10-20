@@ -16,23 +16,26 @@
 
 namespace AlgebraGeometry
 {
+    using CSharpLogic;
+    using System;
     using System.Diagnostics;
 
-    public static class LineSegmentGenerationRule
+    public static class PointGenerationRule
     {
-        public static LineSegmentSymbol GenerateLineSegment(Point pt1, Point pt2)
+        public static PointSymbol GenerateMidPoint(Point pt1, Point pt2)
         {
             if (pt1.Equals(pt2)) return null;
             Debug.Assert(pt1.Concrete);
             Debug.Assert(pt2.Concrete);
-            var ls  = new LineSegment(pt1, pt2);
-            var lss = new LineSegmentSymbol(ls);
-            if(pt1.Traces.Count != 0) lss.Traces.AddRange(pt1.Traces);
-            if(pt2.Traces.Count != 0) lss.Traces.AddRange(pt2.Traces);
-            TraceInstructionalDesign.FromPointsToLineSegment(lss);
-            return lss;
+            double p1x, p1y, p2x, p2y;
+            LogicSharp.IsDouble(pt1.XCoordinate, out p1x);
+            LogicSharp.IsDouble(pt1.YCoordinate, out p1y);
+            LogicSharp.IsDouble(pt2.XCoordinate, out p2x);
+            LogicSharp.IsDouble(pt2.YCoordinate, out p2y);
+            var midX = (p1x + p2x)/2;
+            var midY = (p1y + p2y)/2;
+            var midPoint = new Point(midX, midY);
+            return new PointSymbol(midPoint);
         }
-
-        public static string IdentityPoints = "Cannot build the line as two identify points!";
     }
 }

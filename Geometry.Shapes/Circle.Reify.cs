@@ -30,6 +30,26 @@ namespace AlgebraGeometry
         {
             throw new NotImplementedException();
         }
+
+        public override bool UnifyExplicitProperty(EqGoal goal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyProperty(EqGoal goal, out object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyShape(ShapeSymbol ss)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ApproximateMatch(object obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public partial class Circle : QuadraticCurve

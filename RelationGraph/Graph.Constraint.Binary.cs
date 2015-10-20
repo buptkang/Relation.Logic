@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using CSharpLogic;
@@ -80,6 +81,7 @@ namespace AlgebraGeometry
                     if (ls != null)
                     {
                         ls.OutputType = LineType.GeneralForm;
+                        TraceInstructionalDesign.FromLineSlopeIntercetpToLineGeneralForm(ls);
                         return true;
                     }
                     return false;
@@ -103,6 +105,29 @@ namespace AlgebraGeometry
                     object constraint, out object output)
         {
             output = null;
+            var shape1 = shapeNode.ShapeSymbol;
+            var goal = goalNode.Goal as EqGoal;
+            Debug.Assert(shape1 != null);
+            Debug.Assert(goal!= null);
+
+            var label = constraint as string;
+            if (label != null)
+            {
+                var pt1 = shape1 as PointSymbol;
+                if (pt1 != null)
+                {
+                    if (LineAcronym.EqualGeneralFormLabels(label))
+                    {
+                        var ls = LineBinaryRelation.Unify(pt1, goal);
+                        if (ls != null)
+                        {
+                            ls.OutputType = LineType.GeneralForm;
+                            output = ls;
+                            return true;
+                        }
+                    }
+                }                
+            }
             //TODO
             return false;
         }
@@ -117,7 +142,47 @@ namespace AlgebraGeometry
             Debug.Assert(shape2 != null);
             var pt1 = shape1 as PointSymbol;
             var pt2 = shape2 as PointSymbol;
-            if (pt1 != null && pt2 != null) return ConstraintCheck(pt1, pt2, constraint, out output);
+            if (pt1 != null && pt2 != null)
+            {
+                bool result = ConstraintCheck(pt1, pt2, constraint, out output);
+                if (!result) return false;
+
+                var label = constraint as string;
+                var goal  = constraint as EqGoal;
+                if (goal != null)
+                {
+                    var lstTuple = new List<Tuple<object, object>>();
+
+                    #region Goal Oriented
+                    var source2 = new Tuple<object, object>(shapeNode1, shapeNode2);
+                    var tuple1 = new Tuple<object, object>(source2, constraint);
+
+                    lstTuple.Add(tuple1);
+                    var lst = output as List<object>;
+                    if (lst != null)
+                    {
+                        foreach (EqGoal synGoal in lst)
+                        {
+                            var tempTuple = new Tuple<object, object>(constraint, synGoal);
+                            lstTuple.Add(tempTuple);
+                        }
+                    }
+                    output = lstTuple;
+                    return lstTuple.Count != 0;
+                    #endregion
+                }
+
+                if (label != null)
+                {
+                    var lst = output as List<object>;
+                    if (lst != null && lst.Count == 1)
+                    {
+                        output = lst[0];
+                    }
+                }
+
+                return true;
+            }
             return false;
         }
 
@@ -220,6 +285,18 @@ namespace AlgebraGeometry
             {
                 #region Label Constraint Solving
 
+                if (PointAcronym.MidPoint.Equals(label))
+                {
+                    //Point
+                    output = PointBinaryRelation.Unify(pt1, pt2);
+                    var ps = output as PointSymbol;
+                    if (ps != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
                 #region Line Inference
 
                 //Case 2
@@ -233,6 +310,28 @@ namespace AlgebraGeometry
                         return true;
                     }
                     return false;
+                }
+
+                if (LineAcronym.EqualSlopeLabels(label))
+                {
+                    output = LineBinaryRelation.Unify(pt1, pt2);
+                    if (output == null) return false;
+                    var lss = output as LineSymbol;
+                    //TraceInstructionalDesign.FromPointsToLine(lss);
+                    var output1 = lss.Unify(label);
+                    output = output1;
+                    return true;
+                }
+
+                if (LineAcronym.EqualInterceptLabels(label))
+                {
+                    output = LineBinaryRelation.Unify(pt1, pt2);
+                    if (output == null) return false;
+                    var lss = output as LineSymbol;
+                    //TraceInstructionalDesign.FromPointsToLine(lss);
+                    var output1 = lss.Unify(label);
+                    output = output1;
+                    return true;
                 }
 
                 if (LineAcronym.EqualSlopeInterceptFormLabels(label))
@@ -257,13 +356,18 @@ namespace AlgebraGeometry
                     if (output == null) return false;
                     var lss = output as LineSegmentSymbol;
                     var output1 = lss.Unify(label);
+                    output = output1;
+                    #region Embed Line Segment(obsolete)
+                    /*
                     Debug.Assert(lss != null);
                     if (lss.CachedSymbols.Count == 0)
                     {
+                        output = output1;
                         var lst = new List<object>()
                         {
                             output, output1
                         };
+
                         output = lst;
                     }
                     else
@@ -278,8 +382,9 @@ namespace AlgebraGeometry
                             lst.Add(goalLst[i]);
                         }
                         output = lst;
-                    }
+                    }*/
 
+                    #endregion
                     return true;
                 }
 
@@ -308,6 +413,35 @@ namespace AlgebraGeometry
 
                 #endregion
             }
+
+            var eqGoal = constraint as EqGoal;
+            if (eqGoal != null)
+            {
+                var goalLabel = eqGoal.Lhs.ToString();
+
+                #region Line Segment Inference
+
+                if (LineSegmentAcronym.EqualDistanceLabel(goalLabel))
+                {
+                    output = LineSegBinaryRelation.Unify(pt1, pt2);
+                    if (output == null) return false;
+                    var lss = output as LineSegmentSymbol;
+                    //TraceInstructionalDesign.FromPointsToLineSegment(lss);
+                    output = lss.Unify(eqGoal);
+                    if (output == null) return false;
+                    return true;
+                }
+
+                if (LineAcronym.EqualSlopeLabels(goalLabel))
+                {
+                    output = LineBinaryRelation.Unify(pt1, pt2, eqGoal);
+                    if (output == null) return false;
+                    return true;
+                }
+
+                #endregion
+            }
+
             return false;
         }
 
@@ -324,6 +458,27 @@ namespace AlgebraGeometry
             string str2 = label.ToCharArray()[1].ToString(CultureInfo.InvariantCulture);
             string label1 = pt1.Shape.Label;
             string label2 = pt2.Shape.Label;
+
+            if (label1 == null || label2 == null)
+            {
+                if (constraint2 == ShapeType.LineSegment)
+                {
+                    if (constraint1 == LineSegmentAcronym.GeneralForm)
+                    {
+                        output = LineSegBinaryRelation.Unify(pt1, pt2);
+                        if (output != null) return true;
+                        output = LineSegmentGenerationRule.IdentityPoints;
+                        return false;
+                    }
+                    if (constraint1 == LineAcronym.GeneralForm1)
+                    {
+                        output = LineBinaryRelation.Unify(pt1, pt2);
+                        if (output != null) return true;
+                        output = LineGenerationRule.IdentityPoints;
+                        return false;
+                    }
+                }
+            }
 
             bool condition1 = label1.Equals(str1) && label2.Equals(str2);
             bool condition2 = label1.Equals(str2) && label2.Equals(str1);

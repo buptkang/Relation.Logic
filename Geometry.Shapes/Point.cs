@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Diagnostics;
+
 namespace AlgebraGeometry
 {
     using System;
@@ -177,6 +179,28 @@ namespace AlgebraGeometry
             return this.Unify(label, out obj);
         }
 
+        public override bool UnifyExplicitProperty(EqGoal goal)
+        {
+            var goalLabel = goal.Lhs.ToString();
+            Debug.Assert(goalLabel != null);
+            if (Shape.Concrete) return false;
+            if (SymXCoordinate.Equals(goalLabel)) return true;
+            if (SymYCoordinate.Equals(goalLabel)) return true;
+            return false;
+        }
+
+        public override bool UnifyProperty(EqGoal goal, out object obj)
+        {
+            //Point does not have any backward solving procedure.
+            obj = null;
+            return false;
+        }
+
+        public override bool UnifyShape(ShapeSymbol ss)
+        {
+            return false;
+        }
+
         public override object RetrieveConcreteShapes()
         {
             if (CachedSymbols.Count == 0) return this;
@@ -236,5 +260,44 @@ namespace AlgebraGeometry
 
         public PointType OutputType { get; set; }
         public override object GetOutputType() { return OutputType; }
+
+        public override bool ApproximateMatch(object obj)
+        {
+            var ps = obj as PointSymbol;
+            var ls = obj as LineSegmentSymbol;
+
+            if (ps != null)
+            {
+                var pShape = Shape as Point;
+                if (pShape == null) return false;
+                var pShape1 = ps.Shape as Point;
+                if (pShape1 == null) return false;
+
+                bool cond1 = LogicSharp.NumericEqual(pShape.XCoordinate, pShape1.XCoordinate);
+                bool cond2 = LogicSharp.NumericEqual(pShape.YCoordinate, pShape1.YCoordinate);
+                if (cond1 && cond2) return true;
+
+                if (CachedSymbols.Count == 0) return false;
+
+                foreach (var temp in CachedSymbols)
+                {
+                    var cachedPt = temp as PointSymbol;
+                    Debug.Assert(cachedPt != null);
+                    bool inResult = cachedPt.ApproximateMatch(obj);
+                    if (inResult) return true;
+                }                
+            }
+
+            if (ls != null)
+            {
+                var lineSeg = ls.Shape as LineSegment;
+                Debug.Assert(lineSeg != null);
+                bool cond1 = ApproximateMatch(new PointSymbol(lineSeg.Pt1));
+                bool cond2 = ApproximateMatch(new PointSymbol(lineSeg.Pt2));
+                if (cond1 || cond2) return true;
+            }
+
+            return false;
+        }
     }
 }

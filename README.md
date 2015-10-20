@@ -2,7 +2,23 @@
 
 This library provides a [constraint-solving](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) module based on any logical substitution module, such as [CSharp.Logic](https://github.com/buptkang/CSharp.Logic). The core data structure of this libary is a [constraint graph](https://en.wikipedia.org/wiki/Constraint_graph), which supports both unary and binary constraint inferences. If you need more references about CSP, constraint graph or CSP based search, please refer to [Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu/) and its corresponding [source repo](https://code.google.com/p/aima-python/).
 
+=====================================================
+| ShapeNode         |  Concrete    | Non-Concrete   | 
+=====================================================
+| Relation based    |     C        |       D        |
+-----------------------------------------------------
+|Non-Relation based |     A        |       B        |
+=====================================================
+
 ## Code Examples
+
+Test case structures:
+
+0.Shape:    Testify all shape properties.
+1.Relation: Testify relation unification procedure.
+2.Graph:    Testify both relation unification and reification procedure.
+2.Graph.Uncertainty: Testify uncertainty issue on the graph.
+3.Problems: Model problem solving
 
 Below problems can be found in in high-school geometry textbooks:
 

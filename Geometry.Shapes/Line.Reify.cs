@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Collections.ObjectModel;
+
 namespace AlgebraGeometry
 {
     using CSharpLogic;
@@ -27,7 +29,7 @@ namespace AlgebraGeometry
         {
             var line = this.Shape as Line;
             Debug.Assert(line != null);
-            EqGoal tempGoal = goal.GetLatestDerivedGoal();
+            EqGoal tempGoal = goal;
             bool cond1 = Var.IsVar(tempGoal.Lhs) && LogicSharp.IsNumeric(tempGoal.Rhs);
             bool cond2 = Var.IsVar(tempGoal.Rhs) && LogicSharp.IsNumeric(tempGoal.Lhs);
             Debug.Assert(cond1 || cond2);
@@ -42,18 +44,21 @@ namespace AlgebraGeometry
             if (aResult != null && !line.A.Equals(aResult))
             {
                 CacheA(aResult, goal);
+                RaiseReify(null);
                 return true;
             }
 
             if (bResult != null && !line.B.Equals(bResult))
             {
                 CacheB(bResult, goal);
+                RaiseReify(null);
                 return true;
             }
 
             if (cResult != null && !line.C.Equals(cResult))
             {
                 CacheC(cResult, goal);
+                RaiseReify(null);
                 return true;
             }
 
@@ -65,8 +70,8 @@ namespace AlgebraGeometry
             var line = this.Shape as Line;
             Debug.Assert(line != null);
             if (!ContainGoal(goal)) return false;
-            var updateLst = new HashSet<ShapeSymbol>();
-            var unchangedLst = new HashSet<ShapeSymbol>();
+            var updateLst = new ObservableCollection<ShapeSymbol>();
+            var unchangedLst = new ObservableCollection<ShapeSymbol>();
             foreach (var shape in CachedSymbols.ToList())
             {
                 var iline = shape as LineSymbol;
@@ -111,8 +116,9 @@ namespace AlgebraGeometry
                 Debug.Assert(line != null);
 
                 var gLine = new Line(line.Label, obj, line.B, line.C);
-                CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
-                CachedSymbols.Add(new LineSymbol(gLine));
+                var gLineSymbol = new LineSymbol(gLine);
+                gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
+                CachedSymbols.Add(gLineSymbol);
 
                 //Transform goal trace
                 for (int i = goal.Traces.Count - 1; i >= 0; i--)
@@ -124,7 +130,11 @@ namespace AlgebraGeometry
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
                 var ts = new TraceStep(this, new LineSymbol(gLine), rule, appliedRule);
-                gLine.Traces.Insert(0, ts);
+
+                gLine._innerLoop.Add(ts);
+                gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+
+                //gLine.Traces.Insert(0, ts);
                 #endregion
             }
             else
@@ -134,65 +144,69 @@ namespace AlgebraGeometry
                 foreach (ShapeSymbol shape in CachedSymbols.ToList())
                 {
                     var ls = shape as LineSymbol;
-                    if (ls != null)
+                    if (ls == null) continue;
+
+                    var line = ls.Shape as Line;
+                    Debug.Assert(line != null);
+                    var aResult = LogicSharp.Reify(line.A, goal.ToDict());
+                    if (!line.A.Equals(aResult))
                     {
-                        var line = ls.Shape as Line;
-                        Debug.Assert(line != null);
-                        var aResult = LogicSharp.Reify(line.A, goal.ToDict());
-                        if (!line.A.Equals(aResult))
+                        var gline = new Line(line.Label, line.A, line.B, line.C);
+                        //substitute
+                        line.A = aResult;
+                        CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
+                        //transform goal trace
+                        for (int i = goal.Traces.Count - 1; i >= 0; i--)
                         {
-                            var gline = new Line(line.Label, line.A, line.B, line.C);
-                            //substitute
-                            line.A = aResult;
-                            CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
-                            //transform goal trace
-                            for (int i = goal.Traces.Count - 1; i >= 0; i--)
-                            {
-                                line.Traces.Insert(0, goal.Traces[i]);
-                            }
-                            string rule = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
-                            var ts = new TraceStep(new LineSymbol(gline),
-                                                   new LineSymbol(line),
-                                                   rule, appliedRule);
-                            line.Traces.Insert(0, ts);
+                            line.Traces.Insert(0, goal.Traces[i]);
                         }
-                        else
+                        string rule = SubstitutionRule.ApplySubstitute();
+                        string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
+                        var ts = new TraceStep(new LineSymbol(gline),
+                                               new LineSymbol(line),
+                                               rule, appliedRule);
+
+                        line._innerLoop.Add(ts);
+                        line.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                        //line.Traces.Insert(0, ts);
+                    }
+                    else
+                    {
+                        //generate
+                        var gLine = new Line(line.Label, obj, line.B, line.C);
+                        var gLineSymbol = new LineSymbol(gLine);
+                        gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
+                        foreach (KeyValuePair<object, EqGoal> pair in CachedGoals)
                         {
-                            //generate
-                            var gLine = new Line(line.Label, obj, line.B, line.C);
-                            var gLineSymbol = new LineSymbol(gLine);
-                            CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.A, goal));
-                            foreach (KeyValuePair<object, EqGoal> pair in CachedGoals)
+                            if (pair.Key.Equals(LineAcronym.B))
                             {
-                                if (pair.Key.Equals(LineAcronym.B))
-                                {
-                                    CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.B, pair.Value));
-                                }
-                                else if (pair.Key.Equals(LineAcronym.C))
-                                {
-                                    gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.C, pair.Value));
-                                }
+                                gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.B, pair.Value));
                             }
-                            CachedSymbols.Add(gLineSymbol);
-
-                            //substitute
-                            //Add traces from line to gLine
-                            for (int i = line.Traces.Count - 1; i >= 0; i--)
+                            else if (pair.Key.Equals(LineAcronym.C))
                             {
-                                gLine.Traces.Insert(0, line.Traces[i]);
+                                gLineSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(LineAcronym.C, pair.Value));
                             }
-                            //transform goal trace
-                            for (int i = goal.Traces.Count - 1; i >= 0; i--)
-                            {
-                                gLine.Traces.Insert(0, goal.Traces[i]);
-                            }
-                            string rule = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
-
-                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
-                            gLine.Traces.Insert(0, ts);
                         }
+                        CachedSymbols.Add(gLineSymbol);
+
+                        //substitute
+                        //Add traces from line to gLine
+                        for (int i = line.Traces.Count - 1; i >= 0; i--)
+                        {
+                            gLine.Traces.Insert(0, line.Traces[i]);
+                        }
+                        //transform goal trace
+                        for (int i = goal.Traces.Count - 1; i >= 0; i--)
+                        {
+                            gLine.Traces.Insert(0, goal.Traces[i]);
+                        }
+                        string rule = SubstitutionRule.ApplySubstitute();
+                        string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
+
+                        var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
+                        gLine._innerLoop.Add(ts);
+                        gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                        //gLine.Traces.Insert(0, ts);
                     }
                 }
                 #endregion
@@ -224,7 +238,9 @@ namespace AlgebraGeometry
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
                 var ts = new TraceStep(this, gLineSymbol, rule, appliedRule);
-                gLine.Traces.Insert(0, ts);
+                gLine._innerLoop.Add(ts);
+                gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                //gLine.Traces.Insert(0, ts);
 
                 #endregion
             }
@@ -258,7 +274,9 @@ namespace AlgebraGeometry
                             string appliedRule = SubstitutionRule.ApplySubstitute(ls, goal);
 
                             var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
-                            line.Traces.Insert(0, ts);
+                            line._innerLoop.Add(ts);
+                            line.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                            //line.Traces.Insert(0, ts);
                         }
                         else
                         {
@@ -291,9 +309,12 @@ namespace AlgebraGeometry
                                 gLine.Traces.Insert(0, goal.Traces[i]);
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
+                            string appliedRule = SubstitutionRule.ApplySubstitute(ls, goal);
                             var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
-                            gLine.Traces.Insert(0, ts);
+
+                            gLine._innerLoop.Add(ts);
+                            gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                            //gLine.Traces.Insert(0, ts);
                         }
                     }
                 }
@@ -327,8 +348,9 @@ namespace AlgebraGeometry
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
                 var ts = new TraceStep(this, gLineSymbol, rule, appliedRule);
-                gLine.Traces.Insert(0, ts);
-
+                gLine._innerLoop.Add(ts);
+                gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                //gLine.Traces.Insert(0, ts);
                 #endregion
             }
             else
@@ -356,9 +378,11 @@ namespace AlgebraGeometry
                             }
 
                             string rule = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
+                            string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
                             var ts = new TraceStep(gLineSymbol, ss, rule, appliedRule);
-                            line.Traces.Insert(0, ts);
+                            //line.Traces.Insert(0, ts);
+                            line._innerLoop.Add(ts);
+                            line.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                         }
                         else
                         {
@@ -391,9 +415,11 @@ namespace AlgebraGeometry
                                 gLine.Traces.Insert(0, goal.Traces[i]);
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
+                            string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
                             var ts = new TraceStep(ss, gLineSymbol, rule, appliedRule);
-                            gLine.Traces.Insert(0, ts);
+                            gLine._innerLoop.Add(ts);
+                            gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
+                            //gLine.Traces.Insert(0, ts);
                         }
                     }
                 }

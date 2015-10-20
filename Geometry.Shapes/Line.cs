@@ -149,6 +149,7 @@ namespace AlgebraGeometry
             {
                 _c = 0.0d;
             }
+
             Calc_General_SlopeIntercept();
             PropertyChanged += Line_PropertyChanged;
         }
@@ -174,11 +175,11 @@ namespace AlgebraGeometry
             double d;
             if (LogicSharp.IsDouble(_slope, out d))
             {
-                _slope = Math.Round(d, 1);
+                _slope = Math.Round(d, 2);
             }
             if (LogicSharp.IsDouble(_intercept, out d))
             {
-                _intercept = Math.Round(d, 1);
+                _intercept = Math.Round(d, 2);
             }
 
             if (_slope is string)
@@ -201,6 +202,7 @@ namespace AlgebraGeometry
         #endregion
 
         #region Relation based
+        
         // relation based line
         public Line(string label)
             : base(ShapeType.Line, label)
@@ -209,13 +211,32 @@ namespace AlgebraGeometry
         }
 
         public Line(Point p1, Point p2)
+            : base(ShapeType.Line, null)
         {
+            _rel1 = p1;
+            _rel2 = p2;
             InputType = LineType.Relation;
         }
 
         public Line(string label, Point p1, Point p2)
+            : base(ShapeType.Line, label)
         {
+            _rel1 = p1;
+            _rel2 = p2;
             InputType = LineType.Relation;
+        }
+
+        private object _rel1;
+        public object Rel1
+        {
+            get { return _rel1; }
+            set { _rel1 = value; }
+        }
+        private object _rel2;
+        public object Rel2
+        {
+            get { return _rel2;  }
+            set { _rel2 = value; }
         }
 
         #endregion
@@ -228,6 +249,21 @@ namespace AlgebraGeometry
         {
             get
             {
+                bool cond = (A == null) && (B == null);
+                if (cond) return false;
+
+                if (A == null)
+                {
+                    return !Var.ContainsVar(B) &&
+                       !Var.ContainsVar(C);
+                }
+
+                if (B == null)
+                {
+                    return !Var.ContainsVar(A) &&
+                     !Var.ContainsVar(C);
+                }
+
                 return !Var.ContainsVar(A) &&
                        !Var.ContainsVar(B) &&
                        !Var.ContainsVar(C);
@@ -296,23 +332,35 @@ namespace AlgebraGeometry
             //slope and intercept known
             Debug.Assert(Slope != null);
             Debug.Assert(Intercept != null);
-            A = Slope;
-            B = -1;
-            C = Intercept;
+   
+
+            double dSlope;
+            double dIntercept;
+            bool cond1 = LogicSharp.IsDouble(Slope, out dSlope);
+            bool cond2 = LogicSharp.IsDouble(Intercept, out dIntercept);
+            if (cond1 && cond2)
+            {
+                if (dSlope > 0.0)
+                {
+                    A = Slope;
+                    B = -1;
+                    C = Intercept;                                    
+                }
+                else
+                {
+                    A = -1*dSlope;
+                    B = 1;
+                    C = -1*dIntercept;
+                }
+            }
         }
 
         private void Calc_General_SlopeIntercept()
         {
-            //A, B, C known ax+by+c=0
-            //Slope     = (-1*a)/b
-            //Intercept = (-1*c)/b
-            /*            
-             * Debug.Assert(A != null);
-            Debug.Assert(B != null);*/
-            Debug.Assert(C != null);
-
             if (B == null)
             {
+                //ax+c=0
+                //y=mx+b
                 Slope = double.NaN;
                 Intercept = double.NaN;
                 return;
@@ -326,6 +374,9 @@ namespace AlgebraGeometry
                 Intercept = term41.Eval();
                 return;
             }
+
+            Debug.Assert(A != null);
+            Debug.Assert(B != null);
 
             var term1 = new Term(Expression.Multiply, new List<object>() { -1, A });
             var term2 = new Term(Expression.Divide, new List<object>() { term1, B });
@@ -351,8 +402,6 @@ namespace AlgebraGeometry
                     break;
             }
         }
-
-
 
         #endregion
     }
@@ -381,6 +430,80 @@ namespace AlgebraGeometry
         {
             return this.Unify(label, out obj);
         }
+
+        public override bool UnifyExplicitProperty(EqGoal goal)
+        {
+            var goalLabel = goal.Lhs.ToString();
+            Debug.Assert(goalLabel != null);
+            if (Shape.Concrete) return false;
+
+            var iType = Shape.GetInputType() as LineType?;
+            Debug.Assert(iType != null);
+
+            if (iType == LineType.GeneralForm)
+            {
+                if (SymA != null && SymA.Equals(goalLabel)) return true;
+                if (SymB != null && SymB.Equals(goalLabel)) return true;
+                if (SymC != null && SymC.Equals(goalLabel)) return true;
+            }
+
+            if (iType == LineType.SlopeIntercept)
+            {
+                if (SymSlope != null     && SymSlope.Equals(goalLabel)) return true;
+                if (SymIntercept != null && SymIntercept.Equals(goalLabel)) return true;
+            }
+
+            return false;
+        }
+
+        public override bool UnifyProperty(EqGoal goal, out object obj)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        public override bool UnifyShape(ShapeSymbol ss)
+        {
+            var ps = ss as PointSymbol;
+            if (ps == null) return false;
+            var pt = ps.Shape as Point;
+            Debug.Assert(pt != null);
+            var line = Shape as Line;
+            Debug.Assert(line != null);
+
+            Term xTerm = null;
+            if (line.A != null)
+            {
+                xTerm = new Term(Expression.Multiply, new List<object>() {line.A, pt.XCoordinate});
+            }
+            Term yTerm = null;
+            if (line.B != null)
+            {
+                yTerm = new Term(Expression.Multiply, new List<object>() { line.B, pt.YCoordinate });
+            }
+
+            var lst = new List<object>();
+            if(xTerm != null) lst.Add(xTerm);
+            if(yTerm != null) lst.Add(yTerm);
+            if(line.C != null) lst.Add(line.C);
+
+            var lhs = new Term(Expression.Add, lst);
+            var eq = new Equation(lhs, 0);
+
+            object obj;
+            bool? satisified = eq.Eval(out obj, false);
+
+            if (satisified == null) return false;
+            if (satisified.Value) return true;
+
+            return false;
+        }
+
+        public override bool ApproximateMatch(object obj)
+        {
+            return false;
+        }
+
 
         public LineSymbol(Line line)
             : base(line)

@@ -14,6 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
+using System.Collections.ObjectModel;
+
 namespace AlgebraGeometry
 {
     using CSharpLogic;
@@ -39,7 +41,8 @@ namespace AlgebraGeometry
             var point = Shape as Point;
             Debug.Assert(point != null);
 
-            EqGoal tempGoal = goal.GetLatestDerivedGoal();
+            //EqGoal tempGoal = goal.GetLatestDerivedGoal();
+            EqGoal tempGoal = goal;
             bool cond1 = Var.IsVar(tempGoal.Lhs) && LogicSharp.IsNumeric(tempGoal.Rhs);
             bool cond2 = Var.IsVar(tempGoal.Rhs) && LogicSharp.IsNumeric(tempGoal.Lhs);
             Debug.Assert(cond1 || cond2);
@@ -53,11 +56,13 @@ namespace AlgebraGeometry
             if (!point.XCoordinate.Equals(xResult))
             {
                 GenerateXCacheSymbol(xResult, goal);
+                RaiseReify(null);
                 return true;
             }
             else if (!point.YCoordinate.Equals(yResult))
             {
                 GenerateYCacheSymbol(yResult, goal);
+                RaiseReify(null);
                 return true;
             }
             else
@@ -71,8 +76,8 @@ namespace AlgebraGeometry
             var point = Shape as Point;
             Debug.Assert(point != null);
             if (!ContainGoal(goal)) return false;
-            var updateLst = new HashSet<ShapeSymbol>();
-            var unchangedLst = new HashSet<ShapeSymbol>();
+            var updateLst = new ObservableCollection<ShapeSymbol>();
+            var unchangedLst = new ObservableCollection<ShapeSymbol>();
             foreach (var shape in CachedSymbols.ToList())
             {
                 var pt = shape as PointSymbol;
@@ -119,7 +124,7 @@ namespace AlgebraGeometry
                 var gPointSymbol = new PointSymbol(gPoint);
                 gPointSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.X, goal));
                 CachedSymbols.Add(gPointSymbol);
-
+                gPointSymbol.Traces.AddRange(goal.Traces);
                 //Transform goal trace
                 for (int i = goal.Traces.Count - 1; i >= 0; i--)
                 {
@@ -129,8 +134,11 @@ namespace AlgebraGeometry
                 //Substitution trace
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this,gPointSymbol, rule, appliedRule);
-                gPoint.Traces.Insert(0,ts);
+                var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
+                gPointSymbol._innerLoop.Add(ts);
+                string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
+                gPointSymbol.GenerateATrace(strategy);
+                //gPoint.Traces.Insert(0,ts);
                 #endregion
             }
             else
@@ -146,7 +154,8 @@ namespace AlgebraGeometry
                         if (!pt.XCoordinate.Equals(xResult))
                         {
                             var gPt = new Point(pt.Label, pt.XCoordinate, pt.YCoordinate);
-
+                            var gPointSymbol = new PointSymbol(gPt);
+                            gPointSymbol.Traces.AddRange(goal.Traces);
                             //substitute
                             pt.XCoordinate = xResult;
                             ss.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.X, goal));
@@ -160,15 +169,19 @@ namespace AlgebraGeometry
                             string rule        = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(pt, goal);
 
-                            var ts = new TraceStep(new PointSymbol(gPt),
-                                new PointSymbol(pt),rule, appliedRule );
-                            pt.Traces.Insert(0,ts);
+                            var ts = new TraceStep(ss, gPointSymbol, rule, appliedRule);
+
+                            gPointSymbol._innerLoop.Add(ts);
+                            string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
+                            gPointSymbol.GenerateATrace(strategy);
+                            //pt.Traces.Insert(0,ts);
                         }
                         else
                         {
                             //generate
                             var gPoint = new Point(pt.Label, obj, pt.YCoordinate);
                             var gPointSymbol = new PointSymbol(gPoint);
+                            gPointSymbol.Traces.AddRange(goal.Traces);
                             gPointSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.X, goal));
                             foreach (KeyValuePair<object, EqGoal> pair in CachedGoals)
                             {
@@ -196,7 +209,10 @@ namespace AlgebraGeometry
                             string appliedRule = SubstitutionRule.ApplySubstitute(ss, goal);
 
                             var ts = new TraceStep(ss, gPointSymbol,rule, appliedRule);
-                            gPoint.Traces.Insert(0,ts);
+                            gPointSymbol._innerLoop.Add(ts);
+                            string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
+                            gPointSymbol.GenerateATrace(strategy);
+                            //gPoint.Traces.Insert(0,ts);
                         }
                     }
                 }
@@ -215,6 +231,7 @@ namespace AlgebraGeometry
                 var gPointSymbol = new PointSymbol(gPoint);
                 gPointSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.Y, goal));
                 CachedSymbols.Add(gPointSymbol);
+                gPointSymbol.Traces.AddRange(goal.Traces);
 
                 //transform goal trace
                 for (int i = goal.Traces.Count - 1; i >= 0; i--)
@@ -225,7 +242,13 @@ namespace AlgebraGeometry
                 var rule        = SubstitutionRule.ApplySubstitute();
                 var appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
                 var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
-                gPoint.Traces.Insert(0, ts);
+                gPointSymbol._innerLoop.Add(ts);
+
+
+                string strategy = "Reify a Point's y-coordinate by substituing a given fact.";
+
+                gPointSymbol.GenerateATrace(strategy);
+                //gPoint.Traces.Insert(0, ts);
             }
             else
             {
@@ -242,21 +265,26 @@ namespace AlgebraGeometry
                             //substitute
                             pt.YCoordinate = yResult;
                             ss.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.Y, goal));
+                            gPointSymbol.Traces.AddRange(goal.Traces);
                             //transform goal trace
                             for (int i = goal.Traces.Count - 1; i >= 0; i--)
                             {
                                 pt.Traces.Insert(0, goal.Traces[i]);
                             }
                             string rule        = SubstitutionRule.ApplySubstitute();
-                            string appliedRule = SubstitutionRule.ApplySubstitute(ss, goal);
-                            var ts = new TraceStep(ss,gPointSymbol,rule, appliedRule);
-                            pt.Traces.Insert(0, ts);
+                            string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
+                            var ts = new TraceStep(this,gPointSymbol,rule, appliedRule);
+                            gPointSymbol._innerLoop.Add(ts);
+                            string strategy = "Reify a Point's y-coordinate by substituing a given fact.";
+                            gPointSymbol.GenerateATrace(strategy);
+                            //pt.Traces.Insert(0, ts);
                         }
                         else
                         {
                             //generate
                             var gPoint = new Point(pt.Label, pt.XCoordinate, obj);
                             var gPointSymbol = new PointSymbol(gPoint);
+                            gPointSymbol.Traces.AddRange(goal.Traces);
                             gPointSymbol.CachedGoals.Add(new KeyValuePair<object, EqGoal>(PointAcronym.Y, goal));
                             foreach (KeyValuePair<object, EqGoal> pair in ss.CachedGoals)
                             {
@@ -278,9 +306,13 @@ namespace AlgebraGeometry
                                 gPoint.Traces.Insert(0, goal.Traces[i]);
                             }
                             var rule = SubstitutionRule.ApplySubstitute();
-                            var appliedRule = SubstitutionRule.ApplySubstitute(ss, goal);
-                            var ts = new TraceStep(ss, gPointSymbol,rule, appliedRule);
-                            gPoint.Traces.Insert(0, ts);
+                            var appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
+                            var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
+
+                            gPointSymbol._innerLoop.Add(ts);
+                            string strategy = "Reify a Point's y-coordinate by substituing a given fact.";
+                            gPointSymbol.GenerateATrace(strategy);
+                            //gPoint.Traces.Insert(0, ts);
                         }
                     }
                 }

@@ -14,25 +14,29 @@
  * limitations under the License.
  *******************************************************************************/
 
+using CSharpLogic;
+
 namespace AlgebraGeometry
 {
-    using System.Diagnostics;
-
-    public static class LineSegmentGenerationRule
+    public class PlottingRule
     {
-        public static LineSegmentSymbol GenerateLineSegment(Point pt1, Point pt2)
+        public static string PlottingStrategy = "Consider to write existing facts onto the sketch paper";
+
+        public static string Plot(ShapeSymbol ss)
         {
-            if (pt1.Equals(pt2)) return null;
-            Debug.Assert(pt1.Concrete);
-            Debug.Assert(pt2.Concrete);
-            var ls  = new LineSegment(pt1, pt2);
-            var lss = new LineSegmentSymbol(ls);
-            if(pt1.Traces.Count != 0) lss.Traces.AddRange(pt1.Traces);
-            if(pt2.Traces.Count != 0) lss.Traces.AddRange(pt2.Traces);
-            TraceInstructionalDesign.FromPointsToLineSegment(lss);
-            return lss;
+            if (ss.Shape.Concrete)
+            {
+                return string.Format("Plot shape {0} onto the geometrical side", ss);                
+            }
+            else
+            {
+                return string.Format("Write shape {0} onto the algebraic side", ss); 
+            }
         }
 
-        public static string IdentityPoints = "Cannot build the line as two identify points!";
+        public static string Plot(EqGoal eqGoal)
+        {
+            return string.Format("Write Property {0} onto the algebraic side", eqGoal); 
+        }
     }
 }

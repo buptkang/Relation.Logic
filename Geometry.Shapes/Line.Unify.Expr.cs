@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
-using System.Linq;
-
 namespace AlgebraGeometry
 {
+    using System.Linq;
     using CSharpLogic;
     using System;
     using System.Collections.Generic;
@@ -27,79 +25,180 @@ namespace AlgebraGeometry
 
     public static class LineEquationExtension
     {
-        public static bool IsLineEquation(this Equation eq, out LineSymbol ls)
+        public static bool IsLineEquation(this Equation eq, out LineSymbol ls, bool allowEval = true)
         {
             Debug.Assert(eq != null);
             Debug.Assert(eq.Rhs != null);
             ls = null;
 
-            Equation outputEq;
-            bool? result = eq.Eval(out outputEq, false);
+            Line line;
+            bool matched = SatisfySpecialForm(eq, out line);
+            if (matched)
+            {
+                ls = new LineSymbol(line);
+                line.Label = eq.EqLabel;
+                if (eq.Traces.Count == 1)
+                {
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, eq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
+                }
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
+                return true;
+            }
+
+            matched = SatisfyLineSlopeInterceptForm(eq, out line);
+            if (matched)
+            {
+                ls = new LineSymbol(line);
+                line.Label = eq.EqLabel;
+                if (eq.Traces.Count == 1)
+                {
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, eq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
+                }
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
+                return true;
+            }
+
+/*            if (!allowEval)
+            {
+                matched = SatisfyLineGeneralForm(eq, out line);
+                if (matched)
+                {
+                    ls = new LineSymbol(line);
+                    line.Label = eq.EqLabel;
+                    return true;
+                }
+                matched = SatisfyLineSlopeInterceptForm(eq, out line);
+                if (matched)
+                {
+                    ls = new LineSymbol(line);
+                    line.Label = eq.EqLabel;
+                    return true;
+                }
+                return false;
+            }*/
+
+            object obj;
+            bool? result = eq.Eval(out obj, true, true); // without transitive equational rule.
             if (result != null) return false;
+
+            if (eq.CachedEntities.Count != 1) return false;
+
+            var outputEq = eq.CachedEntities.ToList()[0] as Equation;
+            if (outputEq == null) return false;
+
+            matched = SatisfySpecialForm(outputEq, out line);
+            if (matched)
+            {
+                ls = new LineSymbol(line);
+                line.Label = eq.EqLabel;
+
+                if (outputEq.Traces.Count == 1)
+                {
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, outputEq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
+                }
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
+                return true;
+            }
 
             //Equation Semantic Unification
             //general     form of line equation ax+by+c=0
             //point-slope form of line equation y = mx + b
 
-            Line line;
-            bool matched = SatisfyLineGeneralForm(outputEq, out line);
-            if (matched)
-            {
-                List<TraceStep> steps;
-                List<string> strategies;
-                eq.CloneTrace(out steps, out strategies);
-                ls = new LineSymbol(line);
+         
 
-                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
-                if (lst.Count == 0)
-                {
-                    ls.Traces.AddRange(steps);
-                    ls.StrategyTraces.AddRange(strategies);
-                }
-                if (steps == null || steps.Count == 0) return true;
-                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
-                return true;
-            }
-            matched = SatisfyLineSlopeInterceptForm(outputEq, out line);
-            if (matched)
-            {
-                List<TraceStep> steps;
-                List<string> strategies;
-                eq.CloneTrace(out steps, out strategies);
-                ls = new LineSymbol(line);
-                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
-                if (lst.Count == 0)
-                {
-                    ls.Traces.AddRange(steps);
-                    ls.StrategyTraces.AddRange(strategies);
-                }
-                if (steps == null || steps.Count == 0) return true;
-                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
-                return true;
-            }
-
-            result = eq.Eval(out outputEq);
-            if (result != null) return false;
             matched = SatisfyLineGeneralForm(outputEq, out line);
             if (matched)
             {
-                List<TraceStep> steps;
-                List<string> strategies;
-                eq.CloneTrace(out steps, out strategies);
                 ls = new LineSymbol(line);
-                List<string> lst = ls.StrategyTraces.Intersect(strategies).ToList();
-                if (lst.Count == 0)
+                line.Label = eq.EqLabel;
+                if (outputEq.Traces.Count == 1)
                 {
-                    ls.Traces.AddRange(steps);
-                    ls.StrategyTraces.AddRange(strategies);
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, outputEq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
                 }
-                if (steps == null || steps.Count == 0) return true;
-                ls.StrategyTraces.Add(AlgebraRule.AlgebraicStrategy);
+
+                //Instruction Design
+                TraceInstructionalDesign.FromLineGeneralFormToSlopeIntercept(ls);
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
+               
+              /*  List<Tuple<object, object>> trace = eq.CloneTrace();               
+                ls.Traces.AddRange(trace);
+                List<Tuple<object, object>> lst = ls.Traces.Intersect(trace).ToList();
+                if (lst.Count == 0) ls.Traces.AddRange(trace);*/
                 return true;
             }
 
-            //TODO
-            eq.Traces.Clear();
+
+            matched = SatisfyLineSlopeInterceptForm(outputEq, out line);
+            if (matched)
+            {
+                ls = new LineSymbol(line);
+                line.Label = eq.EqLabel;
+                if (outputEq.Traces.Count == 1)
+                {
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, outputEq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
+                }
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
+
+               /* List<Tuple<object,object>> trace = eq.CloneTrace();
+                ls = new LineSymbol(line);
+                line.Label = eq.EqLabel;
+                ls.Traces.AddRange(trace);
+                List<Tuple<object, object>> lst = ls.Traces.Intersect(trace).ToList();
+                if (lst.Count == 0) ls.Traces.AddRange(trace);*/
+                return true;
+            }
+            eq.ClearTrace();
+            //eq.CachedEntities.Clear();
+
+            return false;
+        }
+
+        private static bool SatisfySpecialForm(Equation equation, out Line line)
+        {
+            line = null;
+          
+            bool isRhsNum = LogicSharp.IsNumeric(equation.Rhs);
+            if (!isRhsNum) return false;
+
+            double dNum;
+            LogicSharp.IsDouble(equation.Rhs, out dNum);
+
+            double rhs = -1*dNum;
+            object xCoeff;
+            bool result = IsXTerm(equation.Lhs, out xCoeff);
+            if (result)
+            {
+                line = new Line(null, xCoeff, null, rhs);
+                return true;
+            }
+            object yCoeff;
+            result = IsYTerm(equation.Lhs, out yCoeff);
+            if (result)
+            {
+                line = new Line(null, null, yCoeff, rhs);
+                return true;
+            }
+            result = IsXYTerm(equation.Lhs, out xCoeff, out yCoeff);
+            if (result)
+            {
+                line = new Line(null, xCoeff, yCoeff, rhs);
+                return true;
+            }
             return false;
         }
 
@@ -107,7 +206,12 @@ namespace AlgebraGeometry
         {
             line = null;
             var lhsTerm = equation.Lhs as Term;
-            if (lhsTerm == null || !equation.Rhs.Equals(0)) return false;
+            if (lhsTerm == null) return false;
+
+            var rhsZero = equation.Rhs.Equals(0);
+
+            if (!rhsZero) return false;
+
 
             line = lhsTerm.UnifyLineTerm();
             return line != null;
@@ -159,6 +263,7 @@ namespace AlgebraGeometry
             {
                 object slope = dict.ContainsKey(A) ? dict[A] : null;
                 object intercept = dict.ContainsKey(C) ? dict[C] : null;
+                if (slope == null) return null;
                 return new Line(slope, intercept);
             }
 
@@ -179,16 +284,42 @@ namespace AlgebraGeometry
             if (result)
             {
                 if (dict.ContainsKey(C))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(C, d);
+                {
+                    dict[C] = d;
+                }
+                else
+                {
+                    dict.Add(C, d);
+                }
                 finalResult = true;
             }
 
             if (currArg is string)
             {
                 if (dict.ContainsKey(C))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(C, new Var(currArg));
+                {
+                    dict[C] = currArg;
+                }
+                else
+                {
+                    dict.Add(C, new Var(currArg));
+                }
+
+                finalResult = true;
+            }
+
+            var variable = currArg as Var;
+            if(variable != null)
+            {
+                if (dict.ContainsKey(C))
+                {
+                    dict[C] = variable;
+                }
+                else
+                {
+                    dict.Add(C, variable);                    
+                }
+
                 finalResult = true;
             }
 
@@ -273,35 +404,39 @@ namespace AlgebraGeometry
             bool result = IsXTerm(currArg, out coeff);
             if (result)
             {
-                if (dict.ContainsKey(A))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(A, coeff);
-                finalResult = true;
+                if (!dict.ContainsKey(A))
+                {
+                    dict.Add(A, coeff);
+                    finalResult = true;                    
+                }
             }
             result = IsYTerm(currArg, out coeff);
             if (result)
             {
-                if (dict.ContainsKey(B))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(B, coeff);
-                finalResult = true;
+                if (!dict.ContainsKey(B))
+                {
+                    dict.Add(B, coeff);
+                    finalResult = true;                    
+                }
             }
             double d;
             result = LogicSharp.IsDouble(currArg, out d);
             if (result)
             {
-                if (dict.ContainsKey(C))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(C, d);
-                finalResult = true;
+                if (!dict.ContainsKey(C))
+                {
+                    dict.Add(C, d);
+                    finalResult = true;                    
+                }
             }
 
             if (currArg is string)
             {
-                if (dict.ContainsKey(C))
-                    throw new Exception("cannot contain two terms with same var");
-                dict.Add(C, new Var(currArg));
-                finalResult = true;
+                if (!dict.ContainsKey(C))
+                {
+                    dict.Add(C, new Var(currArg));
+                    finalResult = true;                    
+                }
             }
 
             if (finalResult)
@@ -340,7 +475,7 @@ namespace AlgebraGeometry
                 {
                     if (lst.Count == 2)
                     {
-                        coeff = lst[0];
+                        coeff = lst[0].ToString();
                         return true;
                     }
                     else
@@ -383,7 +518,7 @@ namespace AlgebraGeometry
                 {
                     if (lst.Count == 2)
                     {
-                        coeff = lst[0];
+                        coeff = lst[0].ToString();
                         return true;
                     }
                     else
@@ -397,6 +532,27 @@ namespace AlgebraGeometry
                     return false;
                 }
             }
+            return false;
+        }
+
+        private static bool IsXYTerm(object obj, out object xCoeff, out object yCoeff)
+        {
+            xCoeff = null;
+            yCoeff = null;
+            var term = obj as Term;
+            if (term == null) return false;
+            var argLst = term.Args as List<object>;
+            if (argLst == null) return false;
+            if (argLst.Count != 2) return false;
+
+            var arg1 = argLst[0];
+            var arg2 = argLst[1];
+
+            if (IsXTerm(arg1, out xCoeff) && IsYTerm(arg2, out yCoeff))
+            {
+                return true;
+            }
+
             return false;
         }
 

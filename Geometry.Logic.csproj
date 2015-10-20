@@ -46,23 +46,39 @@
     <Compile Include="Geometry.Shapes\Circle.Reify.cs" />
     <Compile Include="Geometry.Shapes\Ellipse.cs" />
     <Compile Include="Geometry.Shapes\Ellipse.Reify.cs" />
-    <Compile Include="Geometry.Shapes\Line.Unify.cs" />
-    <Compile Include="Geometry.Shapes\Line.Unify.Rel.cs" />
-    <Compile Include="Geometry.Shapes\Line.Trace.cs" />
-    <Compile Include="Geometry.Shapes\LineSegment.Trace.cs" />
+    <Compile Include="Geometry.Shapes\Line.Trace.Design.cs" />
+    <Compile Include="Geometry.Shapes\Line.Unify.Expr.cs" />
+    <Compile Include="Geometry.Shapes\Line.Rel.Unify.cs" />
+    <Compile Include="Geometry.Shapes\LineSegment.Trace.Design.cs" />
+    <Compile Include="Geometry.Shapes\Point.Rel.Rule.cs" />
+    <Compile Include="Geometry.Shapes\Point.Rel.Unify.cs" />
+    <Compile Include="Geometry.Shapes\Point.Trace.Design.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.cs" />
     <Compile Include="Geometry.Shapes\QuadraticCurve.Eval.cs" />
-    <Compile Include="RelationGraph\Graph.Unify.Search.cs" />
-    <Compile Include="RelationGraph\Graph.UserModel.cs" />
-    <Compile Include="Test\2.Problems\Test_Scenario_5.cs" />
+    <Compile Include="RelationGraph\Graph.Constraint.Search.cs" />
+    <Compile Include="RelationGraph\Graph.Relation.Unify.cs" />
+    <Compile Include="RelationGraph\Graph.Search.cs" />
+    <Compile Include="Geometry.Shapes\ShapePlotting.Rule.cs" />
+    <Compile Include="Test\1.Relation\0.Test.Point.cs" />
+    <Compile Include="Test\1.Relation\3.Test.Goal.cs" />
+    <Compile Include="Test\1.Trace\Trace.Problem01.cs" />
+    <Compile Include="Test\1.Trace\Trace.Problem10.cs" />
+    <Compile Include="Test\1.Trace\Trace.Problem16.cs" />
+    <Compile Include="Test\2.Graph.Uncertainty\1.Test.Line.cs" />
+    <Compile Include="Test\2.Graph.Uncertainty\2.Test.LineSegment.cs" />
+    <Compile Include="Test\2.Graph\3.Test.Goal.cs" />
+    <Compile Include="Test\3.Problems\Test.Scenario_04.cs" />
+    <Compile Include="Test\3.Problems\Test_Scenario_06.cs" />
+    <Content Include="Test\3.Problems\Test_Scenario_07.txt" />
+    <Compile Include="Test\3.Problems\Test_Scenario_28.cs" />
+    <Compile Include="Test\3.Problems\Test_Scenario_05.cs" />
     <Content Include="RelationGraph\Inference.ConstraintEval.txt" />
-    <Compile Include="RelationGraph\Graph.Unify.cs" />
-    <Compile Include="Geometry.Relation\Relation.Verifier.cs" />
-    <Compile Include="Geometry.Relation\Acronym.cs" />
+    <Content Include="RelationGraph\Relation.Verifier.txt" />
+    <Compile Include="Constraint\Acronym.cs" />
     <Compile Include="Geometry.Shapes\Circle.cs" />
     <Compile Include="Geometry.Shapes\LineSegment.cs" />
-    <Compile Include="Geometry.Relation\Relation.Reify.cs" />
-    <Compile Include="Geometry.Shapes\Line.Unify.Rule.cs" />
+    <Compile Include="RelationGraph\Graph.Binary.Reify.cs" />
+    <Compile Include="Geometry.Shapes\Line.Rel.Rule.cs" />
     <Compile Include="Geometry.Shapes\LineSegment.Rel.Rule.cs" />
     <Compile Include="Geometry.Shapes\Point.Unify.cs" />
     <Compile Include="Geometry.Shapes\Line.Reify.cs" />
@@ -70,34 +86,32 @@
     <Compile Include="Geometry.Shapes\Point.Reify.cs" />
     <Compile Include="Geometry.Shapes\Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RelationGraph\Constraint.Binary.cs" />
-    <Compile Include="RelationGraph\Constraint.Unary.cs" />
+    <Compile Include="RelationGraph\Graph.Constraint.Binary.cs" />
+    <Compile Include="RelationGraph\Graph.Constraint.Unary.cs" />
     <Compile Include="RelationGraph\GraphEdge.cs" />
     <Compile Include="RelationGraph\Graph.cs" />
-    <Compile Include="RelationGraph\Graph.Reify.cs" />
+    <Compile Include="RelationGraph\Graph.Relation.Reify.cs" />
     <Compile Include="RelationGraph\GraphNode.cs" />
-    <Compile Include="Test\0.Shape\Test.LineSegment.cs" />
-    <Content Include="Test\1.Relation\Test.Unify.txt" />
+    <Compile Include="Test\1.Relation\2.Test.LineSegment.cs" />
+    <Compile Include="Test\1.Relation\1.Test.Line.cs" />
     <Compile Include="Test\0.Shape\Test.Line.cs" />
     <Compile Include="Test\0.Shape\Test.Point.cs" />
-    <Compile Include="Test\1.Relation\0.Test.Point.cs" />
-    <Content Include="Test\1.Relation\Test.Concrete.txt" />
-    <Content Include="Test\1.Relation\Test.Graph.Selection.txt" />
-    <Content Include="Test\1.Relation\Test.NonConcrete.txt" />
-    <Content Include="Test\1.Relation\TODO1.txt" />
-    <Compile Include="Test\2.Problems\Test.Scenario_1.cs" />
-    <Content Include="Test\1.Relation\TODO2.txt" />
-    <Compile Include="Test\2.Problems\Test.Scenario_2.cs" />
-    <Compile Include="Test\2.Problems\Test.Scenario_3.cs" />
-    <Content Include="Test\1.Relation\Test.Selection.txt" />
+    <Compile Include="Test\2.Graph\0.Test.Point.cs" />
+    <Compile Include="Test\2.Graph\2.Test.LineSegment.cs" />
+    <Content Include="Test\2.Graph.Uncertainty\Test.Graph.Selection.txt" />
+    <Content Include="Test\2.Graph.Uncertainty\Test.NonConcrete.txt" />
+    <Content Include="Test\2.Graph.Uncertainty\TODO1.txt" />
+    <Compile Include="Test\3.Problems\Test.Scenario_01.cs" />
+    <Content Include="Test\2.Graph.Uncertainty\TODO2.txt" />
+    <Compile Include="Test\3.Problems\Test.Scenario_02.cs" />
+    <Content Include="Test\3.Problems\Test.Scenario_03.txt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Geometry.Shapes\LineSegment.Rel.Unify.cs" />
-    <Compile Include="Test\1.Relation\0.Test.Line.cs" />
+    <Compile Include="Test\2.Graph\1.Test.Line.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Geometry.Relation\TODO.txt" />
-    <Content Include="Test\1.Relation\TODO.txt" />
+    <Content Include="RelationGraph\TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="lib\CSharpLogic\CSharpLogic.csproj">
@@ -109,6 +123,7 @@
     <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="README.md" />
+    <None Include="Test\2.Graph.Uncertainty\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

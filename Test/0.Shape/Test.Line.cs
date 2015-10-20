@@ -123,12 +123,12 @@ namespace AlgebraGeometry
             Assert.True(str.Equals("by+3=0"));
 
             //x-by+1=0 => not allowed -> Exception
-            var term = new Term(Expression.Multiply,
+         /*   var term = new Term(Expression.Multiply,
                 new Tuple<object, object>(-1, variable2));
             line = new Line(1, term, 3);
             lineSymbol = new LineSymbol(line);
             str = lineSymbol.ToString();
-            Assert.True(str.Equals("x+(-1*b)y+3=0"));
+            Assert.True(str.Equals("x+(-1*b)y+3=0"));*/
         }
 
         [Test]
@@ -147,219 +147,6 @@ namespace AlgebraGeometry
 
         #endregion
 
-        #region Line Reify and DynamicObject Reify
-
-        [Test]
-        public void test_reify_1()
-        {
-            /*
-             * //ax+by+c=0
-             *  b = 1
-             *  a = 2
-             */
-            var variable = new Var('a');
-            var variable2 = new Var('b');
-            var variable3 = new Var('c');
-            var line = new Line(variable, variable2, variable3);
-            var ls = new LineSymbol(line);
-
-            //a = 2
-            var goal = new EqGoal(variable, 2.0);
-            line.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            var glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            var gLine = glineSymbol.Shape as Line;
-            Assert.NotNull(gLine);
-            Assert.True(gLine.Traces.Count == 1);
-            var ts = gLine.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            var source = ts.Source as LineSymbol;
-            Assert.NotNull(source);
-            Assert.True(source.ToString().Equals("ax+by+c=0"));
-            var target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("2x+by+c=0"));
-
-            ///////////////////////////////////////////////////////
-
-            line = new Line(variable, variable2, variable3);
-            ls = new LineSymbol(line);
-            //b = 1
-            goal = new EqGoal(variable2, 1);
-            line.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            gLine = glineSymbol.Shape as Line;
-            Assert.NotNull(gLine);
-            Assert.True(gLine.Traces.Count == 1);
-            ts = gLine.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            source = ts.Source as LineSymbol;
-            Assert.NotNull(source);
-            Assert.True(source.ToString().Equals("ax+by+c=0"));
-            target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("ax+y+c=0"));
-
-            ///////////////////////////////////////////////////////
-
-            line = new Line(variable, variable2, variable3);
-            ls = new LineSymbol(line);
-
-            //c = -3.2
-            goal = new EqGoal(variable3, -3.2);
-            line.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            gLine = glineSymbol.Shape as Line;
-            Assert.NotNull(gLine);
-            Assert.True(gLine.Traces.Count == 1);
-            ts = gLine.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            source = ts.Source as LineSymbol;
-            Assert.NotNull(source);
-            Assert.True(source.ToString().Equals("ax+by+c=0"));
-            target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("ax+by-3.2=0"));
-
-        }
-
-        [Test]
-        public void test_reify_2()
-        {
-            /*
-             * //ax+by+c=0
-             *  b = 1
-             *  a = 2
-             */
-            var variable = new Var('a');
-            var variable2 = new Var('b');
-            var variable3 = new Var('c');
-            var line = new Line(variable, variable2, variable3);
-            var ls = new LineSymbol(line);
-
-            //a = 2
-            var goal = new EqGoal(variable, 2.0);
-            ls.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            var glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            var gLine = glineSymbol.Shape as Line;
-            Assert.NotNull(gLine);
-            Assert.True(gLine.Traces.Count == 1);
-            var ts = gLine.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            var source = ts.Source as LineSymbol;
-            Assert.NotNull(source);
-            Assert.True(source.ToString().Equals("ax+by+c=0"));
-            var target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("2x+by+c=0"));
-
-            //b = 1
-            var goal2 = new EqGoal(variable2, 1);
-            ls.Reify(goal2);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 2);
-
-            glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            gLine = glineSymbol.Shape as Line;
-            Assert.NotNull(gLine);
-            Assert.True(gLine.Traces.Count == 2);
-            ts = gLine.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("2x+y+c=0"));
-        }
-
-        [Test]
-        public void test_unreify_1()
-        {
-            var variable = new Var('a');
-            var variable2 = new Var('b');
-            var variable3 = new Var('c');
-            var line = new Line(variable, variable2, variable3);
-            var ls = new LineSymbol(line);
-            //a = 2
-            var goal = new EqGoal(variable, 2.0);
-            ls.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            ls.UnReify(goal);
-            Assert.True(ls.CachedSymbols.Count == 0);
-            Assert.True(ls.CachedGoals.Count == 0);
-        }
-
-        [Test]
-        public void test_unreify_2()
-        {
-            /*
-            * //ax+by+c=0
-            *  b = 1
-            *  a = 2
-            */
-            var variable = new Var('a');
-            var variable2 = new Var('b');
-            var variable3 = new Var('c');
-            var line = new Line(variable, variable2, variable3);
-            var ls = new LineSymbol(line);
-
-            //a = 2
-            var goal = new EqGoal(variable, 2.0);
-            ls.Reify(goal);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-
-            var glineSymbol = ls.CachedSymbols.ToList()[0] as LineSymbol;
-            Assert.NotNull(glineSymbol);
-            var gline = glineSymbol.Shape as Line;
-            Assert.NotNull(gline);
-            Assert.True(gline.Traces.Count == 1);
-            var ts = gline.Traces[0] as TraceStep;
-            Assert.NotNull(ts);
-            var source = ts.Source as LineSymbol;
-            Assert.NotNull(source);
-            Assert.True(source.ToString().Equals("ax+by+c=0"));
-            var target = ts.Target as LineSymbol;
-            Assert.NotNull(target);
-            Assert.True(target.ToString().Equals("2x+by+c=0"));
-
-            //b = 1
-            var goal2 = new EqGoal(variable2, 1);
-            ls.Reify(goal2);
-            Assert.False(line.Concrete);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 2);
-
-            ls.UnReify(goal2);
-            Assert.True(ls.CachedSymbols.Count == 1);
-            Assert.True(ls.CachedGoals.Count == 1);
-        }
-
-        #endregion
-
         #region Line Property
 
         [Test]
@@ -374,6 +161,17 @@ namespace AlgebraGeometry
 
             //slope = ?
         }
+
+        [Test]
+        public void test_property_3()
+        {
+            var line = new Line(null, 1, -5);
+            Assert.True(line.Concrete);
+
+            var line2 = new Line(1, null, -10.2);
+            Assert.True(line2.Concrete);
+        }
+
 
         [Test]
         public void test_property_2()
@@ -428,5 +226,175 @@ namespace AlgebraGeometry
 
         #endregion
 
+        #region Line through two points calculation
+
+        [Test]
+        public void Test_TwoPoints_Calculation()
+        {
+            var pt1 = new Point(2, 0);
+            var pt2 = new Point(5, 4);
+
+            var ls = LineGenerationRule.GenerateLine(pt1, pt2);
+            Assert.NotNull(ls);
+        }
+
+        #endregion
+
+        #region Line Unify
+
+        [Test]
+        public void Test_Line_Unify_1()
+        {
+            //2x+3y-1=0
+            var x = new Var("x");
+            var term1 = new Term(Expression.Multiply, new List<object>() { 2, x });
+            var y = new Var("y");
+            var term2 = new Term(Expression.Multiply, new List<object>() { 3, y });
+            var term = new Term(Expression.Add, new List<object>() { term1, term2, -1 });
+            var eq = new Equation(term, 0);
+
+            LineSymbol ls;
+            bool result = eq.IsLineEquation(out ls);
+            Assert.True(result);
+            Assert.NotNull(ls);
+            Assert.True(ls.Traces.Count == 2);
+            object lineType = ls.Shape.GetInputType() as LineType?;
+            Assert.NotNull(lineType);
+        }
+
+        [Test]
+        public void Test_Line_Unify_2()
+        {
+            //3y-y+2x+1=4
+            var x = new Var("x");
+            var y = new Var("y");
+            var term1 = new Term(Expression.Multiply, new List<object>() { 3, y });
+            var term2 = new Term(Expression.Multiply, new List<object>() { -1, y });
+            var term3 = new Term(Expression.Multiply, new List<object>() { 2, x });
+            var term = new Term(Expression.Add, new List<object>() { term1, term2, term3, 4 });
+            var eq = new Equation(term, 4);
+
+            LineSymbol ls;
+            bool result = eq.IsLineEquation(out ls);
+            Assert.True(result);
+            Assert.NotNull(ls);
+            //Assert.True(ls.Traces.Count == 3);
+
+            var lineType = ls.Shape.GetInputType() as LineType?;
+            Assert.NotNull(lineType);
+            Assert.True(lineType.Value == LineType.GeneralForm);
+        }
+
+        [Test]
+        public void Test_Line_Unify_3()
+        {
+            //y=2x+3
+            var x = new Var("x");
+            var y = new Var("y");
+            var term3 = new Term(Expression.Multiply, new List<object>() { 2, x });
+            var term = new Term(Expression.Add, new List<object>() { term3, 3 });
+            var eq = new Equation(y, term);
+
+            LineSymbol ls;
+            bool result = eq.IsLineEquation(out ls);
+            Assert.True(result);
+            Assert.NotNull(ls);
+            Assert.True(ls.Traces.Count == 1);
+
+            var lineType = ls.Shape.GetInputType() as LineType?;
+            Assert.NotNull(lineType);
+            Assert.True(lineType.Value == LineType.SlopeIntercept);
+        }
+
+        [Test]
+        public void Test_Line_Unify_4()
+        {
+            //test
+            //(2*y)+(2*x)+(-1*y)+(2*x)+4=0
+            var x = new Var('x');
+            var y = new Var('y');
+
+            var term1 = new Term(Expression.Multiply, new List<object>() { 2, y });
+            var term2 = new Term(Expression.Multiply, new List<object>() { 2, x });
+            var term3 = new Term(Expression.Multiply, new List<object>() { -1, y });
+            var term4 = new Term(Expression.Multiply, new List<object>() { 2, x });
+            var term = new Term(Expression.Add, new List<object>() { term1, term2, term3, term4, 4 });
+            var eq = new Equation(term, 0);
+            LineSymbol ls;
+            bool result = eq.IsLineEquation(out ls);
+            Assert.True(result);
+            //Assert.True(ls.Traces.Count == 3);
+        }
+
+        #endregion
+
+        #region Line Reify and DynamicObject Reify
+
+        [Test]
+        public void test_reify_1()
+        {
+            /*
+             * //ax+by+c=0
+             *  b = 1
+             *  a = 2
+             */
+            var variable = new Var('a');
+            var variable2 = new Var('b');
+            var variable3 = new Var('c');
+            var line = new Line(variable, variable2, variable3);
+            var ls = new LineSymbol(line);
+
+            //a = 2
+            var goal = new EqGoal(variable, 2.0);
+            ls.Reify(goal);
+            Assert.False(line.Concrete);
+            Assert.True(ls.CachedSymbols.Count == 1);
+            Assert.True(ls.CachedGoals.Count == 1);
+
+            //b = 1
+            goal = new EqGoal(variable2, 1);
+            ls.Reify(goal);
+            Assert.False(line.Concrete);
+            Assert.True(ls.CachedSymbols.Count == 1);
+            Assert.True(ls.CachedGoals.Count == 2);
+
+            //c = -3.2
+            goal = new EqGoal(variable3, -3.2);
+            ls.Reify(goal);
+            Assert.False(line.Concrete);
+            Assert.True(ls.CachedSymbols.Count == 1);
+            Assert.True(ls.CachedGoals.Count == 3);
+            
+            //c = 4
+            goal = new EqGoal(variable3, 4);
+            ls.Reify(goal);
+            Assert.False(line.Concrete);
+            Assert.True(ls.CachedSymbols.Count == 2);
+            Assert.True(ls.CachedGoals.Count == 4);
+        }
+
+        [Test]
+        public void test_unreify_1()
+        {
+            var variable = new Var('a');
+            var variable2 = new Var('b');
+            var variable3 = new Var('c');
+            var line = new Line(variable, variable2, variable3);
+            var ls = new LineSymbol(line);
+            //a = 2
+            var goal = new EqGoal(variable, 2.0);
+            ls.Reify(goal);
+            Assert.False(line.Concrete);
+            Assert.True(ls.CachedSymbols.Count == 1);
+            Assert.True(ls.CachedGoals.Count == 1);
+
+            ls.UnReify(goal);
+            Assert.True(ls.CachedSymbols.Count == 0);
+            Assert.True(ls.CachedGoals.Count == 0);
+        }
+
+        #endregion
+
+       
     }
 }
