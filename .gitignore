@@ -11,7 +11,7 @@ Backup/
 
 # Build results
 
-lib
+lib/
 
 [Dd]ebug/
 [Rr]elease/
