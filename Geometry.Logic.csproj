@@ -114,16 +114,16 @@
     <Content Include="RelationGraph\TODO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="lib\CSharpLogic\CSharpLogic.csproj">
-      <Project>{b6ae1355-89f0-4ecb-83ac-b3b5118a6e4e}</Project>
-      <Name>CSharpLogic</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="README.md" />
     <None Include="Test\2.Graph.Uncertainty\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="CSharp.Logic\CSharpLogic.csproj">
+      <Project>{b6ae1355-89f0-4ecb-83ac-b3b5118a6e4e}</Project>
+      <Name>CSharpLogic</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

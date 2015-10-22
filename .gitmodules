@@ -1,3 +1,7 @@
 [submodule "lib/CSharpLogic"]
 	path = lib/CSharpLogic
 	url = git@github.com:buptkang/CSharp.Logic.git
+[submodule "CSharp.Logic"]
+	path = CSharp.Logic
+	url = https://github.com/buptkang/CSharp.Logic.git
+	branch = master
