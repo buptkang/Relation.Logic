@@ -115,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />
-    <None Include="packages.config" />
     <None Include="README.md" />
     <None Include="Test\2.Graph.Uncertainty\README.md" />
   </ItemGroup>
