@@ -62,7 +62,6 @@
     <Compile Include="Test\1.Relation\0.Test.Point.cs" />
     <Compile Include="Test\1.Relation\3.Test.Goal.cs" />
     <Compile Include="Test\1.Trace\Trace.Problem01.cs" />
-    <Compile Include="Test\1.Trace\Trace.Problem10.cs" />
     <Compile Include="Test\1.Trace\Trace.Problem16.cs" />
     <Compile Include="Test\2.Graph.Uncertainty\1.Test.Line.cs" />
     <Compile Include="Test\2.Graph.Uncertainty\2.Test.LineSegment.cs" />

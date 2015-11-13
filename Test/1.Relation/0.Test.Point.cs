@@ -43,12 +43,12 @@ namespace AlgebraGeometry
             Assert.True(result);
             Assert.NotNull(obj);
 
-            var lst = obj as List<Tuple<object, object>>;
+/*            var lst = obj as Tuple<object, object>;
             Assert.NotNull(lst);
             Assert.True(lst.Count == 1);
             var tuple = lst[0];
             Assert.True(tuple.Item1.Equals(shapeNode));
-            Assert.True(tuple.Item2.Equals(eqGoal));
+            Assert.True(tuple.Item2.Equals(eqGoal));*/
         }
 
         [Test]

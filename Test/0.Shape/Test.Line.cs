@@ -221,7 +221,7 @@ namespace AlgebraGeometry
             var ls = new LineSymbol(line);
             Assert.True(ls.ToString().Equals("ax+2y+3=0"));
             ls.OutputType = LineType.SlopeIntercept;
-            Assert.True(ls.ToString().Equals("y=((-1*a)/2)x-1.5"));
+            Assert.True(ls.ToString().Equals("y=(-a)/2x-1.5"));
         }
 
         #endregion

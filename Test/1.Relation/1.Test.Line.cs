@@ -37,12 +37,11 @@ namespace AlgebraGeometry
             Assert.NotNull(lineSym);
             var line = lineSym.Shape as Line;
             Assert.NotNull(line);
-            Assert.True(line.A.Equals(-1.0));
-            Assert.True(line.B.Equals(1.0));
-            Assert.True(line.C.Equals(-1.0));
+            Assert.True(line.A.Equals(1.0));
+            Assert.True(line.B.Equals(-1.0));
+            Assert.True(line.C.Equals(1.0));
         }
 
-        [Test]
         public void Test_CreateLine_2()
         {
             var pt1 = new Point(1.0, 2.0);
