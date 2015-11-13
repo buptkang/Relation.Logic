@@ -5,14 +5,16 @@ solution: Geometry.Logic.sln
 git:
   submodules: false
 
-script:
-  - xbuild /p:Configuration=Release Geometry.Logic.sln
-
 before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
   - sudo apt-get install nunit-console
 
 before_script:
   - nuget restore Geometry.Logic.sln
-  
+
+script:
+  - xbuild /p:Configuration=Release Geometry.Logic.sln
+
 after_script:
   - nunit-console bin/Release/AlgebraGeometry.dll
