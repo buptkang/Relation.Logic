@@ -1,5 +1,7 @@
 # Relation.Logic
 
+[![](https://travis-ci.org/buptkang/Relation.Logic.png)](https://travis-ci.org/buptkang/Relation.Logic)
+
 <p align="justify">
 This library implements <a href="https://en.wikipedia.org/wiki/Constraint_satisfaction_problem">constraint-solving</a> that is based on a logical module, such as <a href="https://github.com/buptkang/CSharp.Logic">CSharp.Logic</a>. The core data structure is a <a href="https://en.wikipedia.org/wiki/Constraint_graph">constraint graph</a>, which supports both unary and binary constraint inferences. If you need more references about CSP, constraint graph or CSP based search, please refer to <a href="http://aima.cs.berkeley.edu/">Artificial Intelligence: A Modern Approach</a> and its corresponding <a href="https://code.google.com/p/aima-python/">source repo</a>.
 </p>
