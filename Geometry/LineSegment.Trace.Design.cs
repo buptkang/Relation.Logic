@@ -37,13 +37,13 @@ namespace AlgebraGeometry
 
             string strategy;
 
-            TraceStep ts00 = new TraceStep(null, pt1Symbol, PlottingRule.PlottingStrategy, PlottingRule.Plot(pt1Symbol));
-            TraceStep ts01 = new TraceStep(null, pt2Symbol, PlottingRule.PlottingStrategy, PlottingRule.Plot(pt2Symbol));
+            TraceStep ts00 = new TraceStep(null, pt1Symbol, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(pt1Symbol));
+            TraceStep ts01 = new TraceStep(null, pt2Symbol, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(pt2Symbol));
 
             TraceStep ts02 = null;
             if (ls.Pt1.Concrete && ls.Pt2.Concrete)
             {
-                ts02 = new TraceStep(null, lss, PlottingRule.PlottingStrategy, PlottingRule.Plot(lss));
+                ts02 = new TraceStep(null, lss, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(lss));
             }
             strategy = "Plot a Line Segment passing through two points.";
             lss._innerLoop.Add(ts00);
@@ -105,7 +105,7 @@ namespace AlgebraGeometry
             var eq = new Equation(lhs, rhs);
 
             var old_eq = new Equation(lhs, rhs_1);
-            var trace = new TraceStep(old_eq, eq, step1metaRule, step1AppliedRule);
+            var trace = new TraceStep(old_eq, eq, GeometryScaffold.KC_Distance, step1metaRule, step1AppliedRule);
             lst.Add(trace);
             string strategy = "Substitute two points coordinates into the distance function.";
             var newTuple = new Tuple<object, object>(strategy, lst);

@@ -129,7 +129,10 @@ namespace AlgebraGeometry
                 //Substitution trace
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this, new LineSymbol(gLine), rule, appliedRule);
+
+                string kc = SubstitutionRule.SubstituteKC();
+
+                var ts = new TraceStep(this, new LineSymbol(gLine), kc, rule, appliedRule);
 
                 gLine._innerLoop.Add(ts);
                 gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
@@ -162,8 +165,12 @@ namespace AlgebraGeometry
                         }
                         string rule = SubstitutionRule.ApplySubstitute();
                         string appliedRule = SubstitutionRule.ApplySubstitute(line, goal);
+
+                        string kc = SubstitutionRule.SubstituteKC();
+
                         var ts = new TraceStep(new LineSymbol(gline),
                                                new LineSymbol(line),
+                                               kc,
                                                rule, appliedRule);
 
                         line._innerLoop.Add(ts);
@@ -203,7 +210,9 @@ namespace AlgebraGeometry
                         string rule = SubstitutionRule.ApplySubstitute();
                         string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
 
-                        var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
+                        string kc = SubstitutionRule.SubstituteKC();
+
+                        var ts = new TraceStep(ls, gLineSymbol, kc, rule, appliedRule);
                         gLine._innerLoop.Add(ts);
                         gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                         //gLine.Traces.Insert(0, ts);
@@ -237,7 +246,9 @@ namespace AlgebraGeometry
                 //Substitution trace
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
-                var ts = new TraceStep(this, gLineSymbol, rule, appliedRule);
+                string kc = SubstitutionRule.SubstituteKC();
+
+                var ts = new TraceStep(this, gLineSymbol, kc, rule, appliedRule);
                 gLine._innerLoop.Add(ts);
                 gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                 //gLine.Traces.Insert(0, ts);
@@ -272,8 +283,9 @@ namespace AlgebraGeometry
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(ls, goal);
+                            string kc = SubstitutionRule.SubstituteKC();
 
-                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
+                            var ts = new TraceStep(ls, gLineSymbol, kc, rule, appliedRule);
                             line._innerLoop.Add(ts);
                             line.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                             //line.Traces.Insert(0, ts);
@@ -310,7 +322,9 @@ namespace AlgebraGeometry
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(ls, goal);
-                            var ts = new TraceStep(ls, gLineSymbol, rule, appliedRule);
+                            string kc = SubstitutionRule.SubstituteKC();
+
+                            var ts = new TraceStep(ls, gLineSymbol, kc, rule, appliedRule);
 
                             gLine._innerLoop.Add(ts);
                             gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
@@ -347,7 +361,9 @@ namespace AlgebraGeometry
                 //Substitution trace
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this, gLineSymbol, rule, appliedRule);
+                string kc = SubstitutionRule.SubstituteKC();
+
+                var ts = new TraceStep(this, gLineSymbol, kc, rule, appliedRule);
                 gLine._innerLoop.Add(ts);
                 gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                 //gLine.Traces.Insert(0, ts);
@@ -379,7 +395,9 @@ namespace AlgebraGeometry
 
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
-                            var ts = new TraceStep(gLineSymbol, ss, rule, appliedRule);
+                            string kc = SubstitutionRule.SubstituteKC();
+
+                            var ts = new TraceStep(gLineSymbol, ss, kc, rule, appliedRule);
                             //line.Traces.Insert(0, ts);
                             line._innerLoop.Add(ts);
                             line.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
@@ -416,7 +434,9 @@ namespace AlgebraGeometry
                             }
                             string rule = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(gLineSymbol, goal);
-                            var ts = new TraceStep(ss, gLineSymbol, rule, appliedRule);
+                            string kc = SubstitutionRule.SubstituteKC();
+
+                            var ts = new TraceStep(ss, gLineSymbol, kc, rule, appliedRule);
                             gLine._innerLoop.Add(ts);
                             gLine.GenerateATrace(SubstitutionRule.SubstitutionStrategy);
                             //gLine.Traces.Insert(0, ts);

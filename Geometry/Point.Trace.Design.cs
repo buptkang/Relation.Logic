@@ -35,10 +35,10 @@ namespace AlgebraGeometry
 
             string strategy;
 
-            var ts00 = new TraceStep(null, ps1, PlottingRule.PlottingStrategy, PlottingRule.Plot(ps1));
-            var ts01 = new TraceStep(null, ps2, PlottingRule.PlottingStrategy, PlottingRule.Plot(ps2));
+            var ts00 = new TraceStep(null, ps1, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(ps1));
+            var ts01 = new TraceStep(null, ps2, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(ps2));
             var ls = LineBinaryRelation.Unify(ps1, ps2) as LineSymbol;
-            var ts02 = new TraceStep(null, ls, PlottingRule.PlottingStrategy, PlottingRule.Plot(ls));
+            var ts02 = new TraceStep(null, ls, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(ls));
 
             strategy = "Plot the given two points and the connected line.";
             midPoint._innerLoop.Add(ts00);
@@ -105,10 +105,10 @@ namespace AlgebraGeometry
             var metaRule = "Consider substitute generate x coordinate into the point form.";
             var appliedRule = SubstitutionRule.ApplySubstitute(goal1, psym);
 
-            var ts1 = new TraceStep(psym, psym_inter1, metaRule, appliedRule);
+            var ts1 = new TraceStep(psym, psym_inter1, null, metaRule, appliedRule);
             metaRule = "Consider substitute generate y coordinate into the point form.";
             appliedRule = SubstitutionRule.ApplySubstitute(goal2, psym_inter1);
-            var ts2 = new TraceStep(psym_inter1, midPoint, metaRule, appliedRule);
+            var ts2 = new TraceStep(psym_inter1, midPoint, null, metaRule, appliedRule);
 
             strategy = "Generate point (x,y) by subsitute generated x and y.";
             midPoint._innerLoop.Add(ts1);

@@ -85,14 +85,18 @@ namespace AlgebraGeometry
             var finalRight = new Term(Expression.Add, new List<object>() { finalXTerm, line.Intercept });
             var lastEq = new Equation(yTerm, finalRight);
 
-            string step1metaRule = "Given the line general form ax+by+c=0, move X term and Constant term to the right side of equation.";
+            string step1metaRule = "Given the line general form ax+by+c=0, move x term and Constant term to the right side of equation.";
             string step1AppliedRule = String.Format("Move {0}x and {1} to right side of equation.", ls.SymA, ls.SymC);
-            var ts0 = new TraceStep(null, internalEq, step1metaRule, step1AppliedRule);
+
+            string kc = EquationsRule.RuleConcept(EquationsRule.EquationRuleType.Transitive);
+            var ts0 = new TraceStep(null, internalEq, kc, step1metaRule, step1AppliedRule);
             ls._innerLoop.Add(ts0);
 
             string appliedRule = string.Format("divide coefficient b in both side of equation.");
 
-            var ts1 = new TraceStep(null, lastEq, AlgebraRule.AlgebraicStrategy, appliedRule);
+            kc = EquationsRule.RuleConcept(EquationsRule.EquationRuleType.Inverse);
+
+            var ts1 = new TraceStep(null, lastEq, kc, AlgebraRule.AlgebraicStrategy, appliedRule);
             ls._innerLoop.Add(ts1);
             ls.GenerateATrace(strategy);
         }
@@ -112,7 +116,10 @@ namespace AlgebraGeometry
 
             string step1metaRule = "Given the line slope-intercept from y=mx+b, move y term to the right side of equation.";
             string step1AppliedRule = String.Format("Move y to the right side of equation");
-            var ts = new TraceStep(ls.SlopeInterceptForm, ls.GeneralForm, step1metaRule, step1AppliedRule);
+
+            string kc = GeometryScaffold.KC_LinePatternsTransform;
+
+            var ts = new TraceStep(ls.SlopeInterceptForm, ls.GeneralForm, kc, step1metaRule, step1AppliedRule);
             string strategy = strategy_si_general;
             ls._innerLoop.Add(ts);
             ls.GenerateATrace(strategy);
@@ -138,7 +145,7 @@ namespace AlgebraGeometry
             var pt = new Point(0, ls.SymIntercept);
             var ptSym = new PointSymbol(pt);
 
-            var ts0 = new TraceStep(null, ptSym, PlottingRule.PlottingStrategy, PlottingRule.Plot(ptSym));
+            var ts0 = new TraceStep(null, ptSym, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(ptSym));
             ls._innerLoop.Add(ts0);
             //////////////////////////////////////////////////////////////
             // Step 2:
@@ -171,7 +178,7 @@ namespace AlgebraGeometry
                     LogicSharp.IsDouble(gGoal.Rhs, out dX);
                     var pt1 = new Point(dX, 0);
                     var ptSym1 = new PointSymbol(pt1);
-                    var ts1 = new TraceStep(null, ptSym1, PlottingRule.PlottingStrategy, PlottingRule.Plot(ptSym1));
+                    var ts1 = new TraceStep(null, ptSym1, null, PlottingRule.PlottingStrategy, PlottingRule.Plot(ptSym1));
                     ls._innerLoop.Add(ts1);
                 }
             }
@@ -181,7 +188,11 @@ namespace AlgebraGeometry
             const string step1MetaRule = "Given the line slope-intercept form y=mx+b, plot the line by passing points (0,b) and (-b/m,0).";
             string step1AppliedRule = String.Format("Plotting the line passing through (0,{0}) and ({1},0) ", ls.SymIntercept, ls.SymC);
             //var ts = new TraceStep(null, ls.SlopeInterceptForm, step1MetaRule, step1AppliedRule);
-            var ts = new TraceStep(null, ls, step1MetaRule, step1AppliedRule);
+
+
+            string kc = GeometryScaffold.KC_LineGraphing;
+
+            var ts = new TraceStep(null, ls, kc, step1MetaRule, step1AppliedRule);
             ls._innerLoop.Add(ts);
 
             //////////////////////////////////////////////////////////////////
@@ -245,7 +256,11 @@ namespace AlgebraGeometry
             var rhs_11 = new Term(Expression.Divide, new List<object>() { term1_11, term2_11 });
             var eq = new Equation(variable, rhs_11);
 
-            var trace1 = new TraceStep(null, eq, step1metaRule, step1AppliedRule);
+            string kc = GeometryScaffold.KC_LineSlopeForm;
+
+
+
+            var trace1 = new TraceStep(null, eq, kc, step1metaRule, step1AppliedRule);
             //lst.Add(trace1);
             lst.Add(trace1);
 
@@ -263,7 +278,9 @@ namespace AlgebraGeometry
                 pt2.XCoordinate.ToString(),
                 pt1.XCoordinate.ToString());
 
-            var trace2 = new TraceStep(null, newEq, step2metaRule, step2AppliedRule);
+            kc = SubstitutionRule.SubstituteKC();
+
+            var trace2 = new TraceStep(null, newEq, kc, step2metaRule, step2AppliedRule);
             //lst.Add(trace1);
             lst.Add(trace2);
 
@@ -285,7 +302,10 @@ namespace AlgebraGeometry
             var lst = new List<TraceStep>();
             string step1metaRule = "Given the line slope intercept form y=mx+b, the slope is m.";
             string step1AppliedRule = String.Format("Given line slope-intercept form {0}, the slope is {1}.", ls.ToString(), ls.SymSlope);
-            var ts = new TraceStep(ls, goal, step1metaRule, step1AppliedRule);
+
+            string kc = GeometryScaffold.KC_LineSlopeForm;
+            
+            var ts = new TraceStep(ls, goal, kc, step1metaRule, step1AppliedRule);
             lst.Add(ts);
             var strategy = strategy_si_slope;
             var tuple = new Tuple<object, object>(strategy, lst);
@@ -342,7 +362,16 @@ namespace AlgebraGeometry
             var lst = new List<TraceStep>();
             string step1metaRule = "Given the line slope intercept form y=mx+K, the y-intercept is K.";
             string step1AppliedRule = String.Format("Given line slope-intercept form {0}, the slope is {1}.", ls.ToString(), ls.SymIntercept);
-            var ts = new TraceStep(ls, goal, step1metaRule, step1AppliedRule);
+
+            string kc = GeometryScaffold.KC_LineInterceptForm;
+
+
+
+            var ts = new TraceStep(ls, goal, kc, step1metaRule, step1AppliedRule);
+
+
+
+
             lst.Add(ts);
             var strategy = strategy_si_intercept;
             var tuple = new Tuple<object, object>(strategy, lst);
@@ -365,8 +394,10 @@ namespace AlgebraGeometry
         {
             //1. Substitute slope and intercept properties into the line slope-intercept form y=mx+b.
             ////////////////////////////////////////////////////////
-            var ts0 = new TraceStep(null, slopeGoal, PlottingRule.PlottingStrategy, PlottingRule.Plot(slopeGoal));
-            var ts1 = new TraceStep(null, interceptGoal, PlottingRule.PlottingStrategy, PlottingRule.Plot(interceptGoal));
+
+
+            var ts0 = new TraceStep(null, slopeGoal, GeometryScaffold.KC_LineSlopeForm, PlottingRule.PlottingStrategy, PlottingRule.Plot(slopeGoal));
+            var ts1 = new TraceStep(null, interceptGoal, GeometryScaffold.KC_LineInterceptForm, PlottingRule.PlottingStrategy, PlottingRule.Plot(interceptGoal));
             ls._innerLoop.Add(ts0);
 
             var abstractLs = new Line(ls.Shape.Label, slopeGoal.Lhs, interceptGoal.Lhs);
@@ -374,7 +405,7 @@ namespace AlgebraGeometry
             var internalLs = new Line(ls.Shape.Label, ls.SymSlope, interceptGoal.Lhs);
             var internalLss = new LineSymbol(internalLs);
 
-            var traceStep1 = new TraceStep(abstractLss, internalLss, SubstitutionRule.SubstitutionStrategy, SubstitutionRule.ApplySubstitute(abstractLss, slopeGoal));
+            var traceStep1 = new TraceStep(abstractLss, internalLss, SubstitutionRule.SubstituteKC(), SubstitutionRule.SubstitutionStrategy, SubstitutionRule.ApplySubstitute(abstractLss, slopeGoal));
             ls._innerLoop.Add(traceStep1);
 
             ls._innerLoop.Add(ts1);
@@ -382,7 +413,7 @@ namespace AlgebraGeometry
                         var rule = "Substitute given property to line slope-intercept form.";
                         var appliedRule1 = string.Format("Substitute slope={0} into y=mx+b", ls.SymSlope);
                         var appliedRule2= string.Format("Substitute intercept={0} into y=mx+b", ls.SymIntercept);*/
-            var traceStep2 = new TraceStep(internalLss, ls, SubstitutionRule.SubstitutionStrategy, SubstitutionRule.ApplySubstitute(internalLss, interceptGoal));
+            var traceStep2 = new TraceStep(internalLss, ls, SubstitutionRule.SubstituteKC(), SubstitutionRule.SubstitutionStrategy, SubstitutionRule.ApplySubstitute(internalLss, interceptGoal));
             ls._innerLoop.Add(traceStep2);
 
             string strategy = "Substitute slope and intercept properties into the line slope-intercept form y = mx + b.";
@@ -409,12 +440,14 @@ namespace AlgebraGeometry
 
             string strategy = "Generate a line by substituting two given points into the line slope-intercept form y=mx+k.";
 
-            var ts0 = new TraceStep(eqPattern, eqPattern1, SubstitutionRule.SubstitutionStrategy,
+            var ts0 = new TraceStep(eqPattern, eqPattern1, SubstitutionRule.SubstituteKC(),SubstitutionRule.SubstitutionStrategy,
                 SubstitutionRule.ApplySubstitute(eqPattern, ps1));
-            var ts1 = new TraceStep(eqPattern, eqPattern2, SubstitutionRule.SubstitutionStrategy,
+            var ts1 = new TraceStep(eqPattern, eqPattern2, SubstitutionRule.SubstituteKC(),SubstitutionRule.SubstitutionStrategy,
                 SubstitutionRule.ApplySubstitute(eqPattern, ps2));
 
-            var ts2 = new TraceStep(null, ls, "calculate m and k through the above two linear equations.",
+            string kc = GeometryScaffold.KC_LineSlopeForm;
+
+            var ts2 = new TraceStep(null, ls, kc, "calculate m and k through the above two linear equations.",
                 "calculate m and k through linear equation and retrieve y=mx+k line form.");
 
             ls._innerLoop.Add(ts0);
@@ -450,7 +483,7 @@ namespace AlgebraGeometry
 
             var appliedRule1 = SubstitutionRule.ApplySubstitute(eqPattern, goal);
 
-            var ts0 = new TraceStep(eqPattern, eqInternal1, strategy1, appliedRule1);
+            var ts0 = new TraceStep(eqPattern, eqInternal1, SubstitutionRule.SubstituteKC(), strategy1, appliedRule1);
             ls._innerLoop.Add(ts0);
 
             //////////////////////////////////////////////////////////////////////
@@ -476,7 +509,7 @@ namespace AlgebraGeometry
 
             var appliedRule2 = SubstitutionRule.ApplySubstitute(eqInternal1, ps);
 
-            var ts = new TraceStep(eqInternal1, ls, strategy2, appliedRule2);
+            var ts = new TraceStep(eqInternal1, ls, SubstitutionRule.SubstituteKC(), strategy2, appliedRule2);
             ls._innerLoop.Add(ts);
             ls.GenerateATrace(strategy);
         }

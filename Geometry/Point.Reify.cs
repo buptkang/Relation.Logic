@@ -134,7 +134,7 @@ namespace AlgebraGeometry
                 //Substitution trace
                 string rule = SubstitutionRule.ApplySubstitute();
                 string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
+                var ts = new TraceStep(this, gPointSymbol,SubstitutionRule.SubstituteKC(), rule, appliedRule);
                 gPointSymbol._innerLoop.Add(ts);
                 string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
                 gPointSymbol.GenerateATrace(strategy);
@@ -169,7 +169,7 @@ namespace AlgebraGeometry
                             string rule        = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(pt, goal);
 
-                            var ts = new TraceStep(ss, gPointSymbol, rule, appliedRule);
+                            var ts = new TraceStep(ss, gPointSymbol, SubstitutionRule.SubstituteKC(), rule, appliedRule);
 
                             gPointSymbol._innerLoop.Add(ts);
                             string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
@@ -208,7 +208,7 @@ namespace AlgebraGeometry
                             string rule        = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(ss, goal);
 
-                            var ts = new TraceStep(ss, gPointSymbol,rule, appliedRule);
+                            var ts = new TraceStep(ss, gPointSymbol, SubstitutionRule.SubstituteKC(), rule, appliedRule);
                             gPointSymbol._innerLoop.Add(ts);
                             string strategy = "Reify a Point's x-coordinate by substituing a given fact.";
                             gPointSymbol.GenerateATrace(strategy);
@@ -241,7 +241,7 @@ namespace AlgebraGeometry
                 //Substitution trace
                 var rule        = SubstitutionRule.ApplySubstitute();
                 var appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
+                var ts = new TraceStep(this, gPointSymbol, SubstitutionRule.SubstituteKC(), rule, appliedRule);
                 gPointSymbol._innerLoop.Add(ts);
 
 
@@ -273,7 +273,7 @@ namespace AlgebraGeometry
                             }
                             string rule        = SubstitutionRule.ApplySubstitute();
                             string appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                            var ts = new TraceStep(this,gPointSymbol,rule, appliedRule);
+                            var ts = new TraceStep(this, gPointSymbol, SubstitutionRule.SubstituteKC(), rule, appliedRule);
                             gPointSymbol._innerLoop.Add(ts);
                             string strategy = "Reify a Point's y-coordinate by substituing a given fact.";
                             gPointSymbol.GenerateATrace(strategy);
@@ -307,7 +307,7 @@ namespace AlgebraGeometry
                             }
                             var rule = SubstitutionRule.ApplySubstitute();
                             var appliedRule = SubstitutionRule.ApplySubstitute(this, goal);
-                            var ts = new TraceStep(this, gPointSymbol, rule, appliedRule);
+                            var ts = new TraceStep(this, gPointSymbol, SubstitutionRule.SubstituteKC(), rule, appliedRule);
 
                             gPointSymbol._innerLoop.Add(ts);
                             string strategy = "Reify a Point's y-coordinate by substituing a given fact.";

@@ -14,25 +14,26 @@
  * limitations under the License.
  *******************************************************************************/
 
-namespace AlgebraGeometry
+namespace CSharpLogic
 {
-    using System.Linq;
-    using CSharpLogic;
-    using NUnit.Framework;
-    using System;
-    using System.Collections.Generic;
-
-    [TestFixture]
-    public partial class TestProblemSolvingScenarios
+    public enum RepresentationType
     {
-        /*
-         * Problem 7: The points (3,v) and (2,0) fall on a line with a slope of 10. What is the value of v?
-         */
+        Explicit, Implicit, Parametric
+    }
 
-        [Test]
-        public void TestScenario_7_WorkedExample_1()
-        {
-          
-        }
+    public enum CoordinateSystemType
+    {
+        Cartesian, Polar
+    }
+ 
+    public enum ShapeType
+    {
+        Point = 0,
+        Line = 1,
+        LineSegment = 2,
+        Circle = 3,
+        PointLine = 4,
+        TwoLines = 5,
+        None = -1       
     }
 }
