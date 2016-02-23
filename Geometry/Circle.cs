@@ -40,11 +40,14 @@ namespace AlgebraGeometry
         //            CentralPt = center;
         //        }
 
-        //        public Circle(Point center, double radius)
-        //        {
-        //            Radius    = radius;
-        //            CentralPt = center;
-        //        }
+        public double Radius { get; set; }
+        public Point CenterPt { get; set; }
+
+        public Circle(Point center, double radius)
+        {
+            Radius = radius;
+            CenterPt = center;
+        }
 
         #region IEquatable
         //TODO
@@ -53,9 +56,10 @@ namespace AlgebraGeometry
 
     public partial class CircleSymbol : ShapeSymbol
     {
-        public CircleSymbol(Shape _shape)
-            : base(_shape)
+        public CircleSymbol(Circle _circle)
+            : base(_circle)
         {
+
         }
 
         public override object RetrieveConcreteShapes()
