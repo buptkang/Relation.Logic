@@ -39,11 +39,23 @@ namespace AlgebraGeometry
             {
                 var point1 = pt1.Shape as Point;
                 var point2 = pt2.Shape as Point;
+               
                 Debug.Assert(point1 != null);
                 Debug.Assert(point2 != null);
-                var line = LineGenerationRule.GenerateLine(point1, point2);
-                TraceInstructionalDesign.FromPointPointToLine(pt1, pt2, line);
-                return line;
+
+                var winPt1 = new System.Windows.Point((double) point1.XCoordinate, (double) point1.YCoordinate);
+                var winPt2 = new System.Windows.Point((double) point2.XCoordinate, (double) point2.YCoordinate);
+
+                var lineSymbol = LineGenerationRule.GenerateLine(point1, point2);
+
+                var line = lineSymbol.Shape as Line;
+                Debug.Assert(line != null);
+
+                line.Rel1 = winPt1;
+                line.Rel2 = winPt2;
+
+                TraceInstructionalDesign.FromPointPointToLine(pt1, pt2, lineSymbol);
+                return lineSymbol;
             }
             else
             {
