@@ -68,6 +68,7 @@
     <Compile Include="RelationGraph\Graph.Search.cs" />
     <Compile Include="Scaffold\ShapePlotting.Rule.cs" />
     <Compile Include="Scaffold\Scaffold.Geometry.cs" />
+    <Compile Include="Test\0.Shape\Test.Circle.cs" />
     <Compile Include="Test\1.Relation\0.Test.Point.cs" />
     <Compile Include="Test\1.Relation\3.Test.Goal.cs" />
     <Compile Include="Test\1.Trace\Trace.Problem01.cs" />
