@@ -57,14 +57,6 @@ namespace AlgebraGeometry
 
     }
 
-    public static class CircleEquationExtension
-    {
-        public static bool IsCircleEquation(this QuadraticCurveSymbol qcs, out CircleSymbol cs)
-        {
-            cs = null;
-            return false;
-        }
-    }
 
         //case "R" : case "r":
         //            return circle.Radius;

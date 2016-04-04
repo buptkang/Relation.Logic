@@ -48,8 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Geometry\Circle.Reify.cs" />
-    <Compile Include="Geometry\Ellipse.cs" />
-    <Compile Include="Geometry\Ellipse.Reify.cs" />
+    <Compile Include="Geometry\Circle.Unify.Expr.cs" />
     <Compile Include="Geometry\Line.Trace.Design.cs" />
     <Compile Include="Geometry\Line.Unify.Expr.cs" />
     <Compile Include="Geometry\Line.Rel.Unify.cs" />
@@ -58,7 +57,6 @@
     <Compile Include="Geometry\Point.Rel.Unify.cs" />
     <Compile Include="Geometry\Point.Trace.Design.cs" />
     <Compile Include="Geometry\QuadraticCurve.cs" />
-    <Compile Include="Geometry\QuadraticCurve.Eval.cs" />
     <Compile Include="IGeometry\IShape.cs" />
     <Compile Include="IGeometry\IShape.Eval.cs" />
     <Compile Include="IGeometry\IShape.Trace.cs" />
