@@ -48,6 +48,8 @@ namespace AlgebraGeometry
 
                 var lineSymbol = LineGenerationRule.GenerateLine(point1, point2);
 
+                if (lineSymbol == null) return null;
+
                 var line = lineSymbol.Shape as Line;
                 Debug.Assert(line != null);
 

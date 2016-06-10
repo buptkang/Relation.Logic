@@ -15,33 +15,16 @@
  *******************************************************************************/
 
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace AlgebraGeometry
 {
     using CSharpLogic;
     using System;
 
-    public partial class Circle : QuadraticCurve
+    public partial class Circle
     {
-        //        public Circle(string label, double a, double b, double d, double e, double f)
-        //            : base(label, ShapeType.Circle, a, b, 0.0, d, e, f)
-        //        {
-        //        }
-
-        //        public Circle(double a, double b, double d, double e, double f)
-        //            : this(null, a, b, d, e, f)
-        //        {
-        //            CentralPt = new Point(-d/2*a, -e/2*a);
-        //            Radius = Math.Sqrt((Math.Pow(d, 2.0) + Math.Pow(e, 2.0) - 4*f*a)/(4*Math.Pow(a, 2.0)));
-        //        }
-
-        //        public Circle(string label, Point center, double radius)
-        //        {
-        //            Label = label;
-        //            Radius = radius;
-        //            CentralPt = center;
-        //        }
-
         public double Radius { get; set; }
         public Point CenterPt { get; set; }
 
@@ -51,9 +34,21 @@ namespace AlgebraGeometry
             CenterPt = center;
         }
 
+        #region Utils
+
+        public override bool Concrete
+        {
+            get { return CenterPt.Concrete; }
+        }
+
+        #endregion
+
         #region IEquatable
         //TODO
         #endregion
+
+
+
     }
 
     public partial class CircleSymbol : ShapeSymbol
@@ -66,12 +61,65 @@ namespace AlgebraGeometry
 
         public override object RetrieveConcreteShapes()
         {
-            throw new NotImplementedException();
+            var circle = Shape as Circle;
+            Debug.Assert(circle != null);
+            if (CachedSymbols.Count == 0) return this;
+            return CachedSymbols.ToList();
         }
 
         public override object GetOutputType()
         {
             throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            var circle = Shape as Circle;
+            Debug.Assert(circle != null);
+
+            var builder = new StringBuilder();
+            builder.Append("(x");
+
+            double dNum;
+            bool isDouble = LogicSharp.IsDouble(circle.CenterPt.XCoordinate, out dNum);
+            if (isDouble)
+            {
+                if (dNum > 0)
+                {
+                    builder.Append("-").Append(dNum);
+                }
+                else
+                {
+                    builder.Append("+").Append(Math.Abs(dNum));
+                }
+            }
+            else
+            {
+                builder.Append("-").Append(circle.CenterPt.XCoordinate);
+            }
+            builder.Append(")^2+");
+
+            builder.Append("(y");
+            isDouble = LogicSharp.IsDouble(circle.CenterPt.YCoordinate, out dNum);
+            if (isDouble)
+            {
+                if (dNum > 0)
+                {
+                    builder.Append("-").Append(dNum);
+                }
+                else
+                {
+                    builder.Append("+").Append(Math.Abs(dNum));
+                }
+            }
+            else
+            {
+                builder.Append("-").Append(circle.CenterPt.YCoordinate);
+            }
+            builder.Append(")^2");
+            builder.Append("=").Append(circle.Radius).Append("^2");
+
+            return builder.ToString();
         }
 
         #region Symbolic Format
