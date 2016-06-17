@@ -33,7 +33,7 @@ namespace AlgebraGeometry
             ls = null;
 
             Line line;
-            bool matched = SatisfySpecialForm(eq, out line);
+           /* bool matched = SatisfySpecialForm(eq, out line);
             if (matched)
             {
                 ls = new LineSymbol(line);
@@ -63,7 +63,7 @@ namespace AlgebraGeometry
                 }
                 TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);
                 return true;
-            }
+            }*/
 
 /*            if (!allowEval)
             {
@@ -93,7 +93,7 @@ namespace AlgebraGeometry
             var outputEq = eq.CachedEntities.ToList()[0] as Equation;
             if (outputEq == null) return false;
 
-            matched = SatisfySpecialForm(outputEq, out line);
+            bool matched = SatisfySpecialForm(outputEq, out line);
             if (matched)
             {
                 ls = new LineSymbol(line);
@@ -113,8 +113,6 @@ namespace AlgebraGeometry
             //Equation Semantic Unification
             //general     form of line equation ax+by+c=0
             //point-slope form of line equation y = mx + b
-
-         
 
             matched = SatisfyLineGeneralForm(outputEq, out line);
             if (matched)
@@ -213,7 +211,7 @@ namespace AlgebraGeometry
 
             if (!rhsZero) return false;
 
-
+            lhsTerm = lhsTerm.FlatTerm();
             line = lhsTerm.UnifyLineTerm();
             return line != null;
         }

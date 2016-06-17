@@ -26,7 +26,9 @@ namespace AlgebraGeometry
 
     public static class CircleEquationExtension
     {
-        public static bool IsCircleEquation(this Equation eq, out CircleSymbol cs, bool allowEval = false)
+        public static bool IsCircleEquation(
+            this Equation eq, 
+            out CircleSymbol cs, bool allowEval = false)
         {
             Debug.Assert(eq != null);
             Debug.Assert(eq.Rhs != null);
@@ -48,6 +50,65 @@ namespace AlgebraGeometry
                 TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);*/
                 #endregion
                 return true;
+            }
+
+            object obj;
+            bool? result = eq.Eval(out obj, true, true); // without transitive equational rule.
+            if (result != null) return false;
+
+            var gEq = obj as Equation;
+            if (gEq == null) return false;
+            matched = SatisfyGeneralForm(gEq, out circle);
+            if (matched)
+            {
+                cs = new CircleSymbol(circle);
+                circle.Label = eq.EqLabel;
+                #region TODO Trace
+                /*                if (eq.Traces.Count == 1)
+                {
+                    var strategy = "Generate a line by manipulating algebraic equation.";
+                    var newTrace = new Tuple<object, object>(strategy, eq.Traces[0].Item2);
+                    ls.Traces.Add(newTrace);
+                    //ls.ImportTrace(eq);
+                }
+                TraceInstructionalDesign.LineSlopeIntercepToGraph(ls);*/
+                #endregion
+                return true;
+            }
+
+
+            return false;
+        }
+
+        private static bool SatisfyGeneralForm(Equation equation,
+            out Circle circle)
+        {
+            circle = null;
+            var term = equation.Lhs as Term;
+
+            if (term != null && term.Op.Method.Name.Equals("Add"))
+            {
+                var lst = term.Args as List<object>;
+                if (lst != null && lst.Count == 3)
+                {
+                    bool isNum = LogicSharp.IsNumeric(lst[2]);
+
+                    if (isNum)
+                    {
+                        double dNum;
+                        LogicSharp.IsDouble(lst[2], out dNum);
+                        dNum *= -1;
+                        object coeffX, coeffY;
+                        bool xTerm1 = IsXSquareTerm(lst[0], out coeffX);
+                        bool yTerm1 = IsYSquareTerm(lst[1], out coeffY);
+                        if (xTerm1 && yTerm1)
+                        {
+                            var pt = new Point(coeffX, coeffY);
+                            circle = new Circle(pt, Math.Pow(dNum, 0.5));
+                            return true;
+                        }
+                    }
+                }
             }
             return false;
         }
