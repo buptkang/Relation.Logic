@@ -23,6 +23,7 @@ namespace AlgebraGeometry
     using System.Linq;
     using CSharpLogic;
 
+    [Serializable]
     public partial class Point : Shape
     {
         private object _xCoord;
@@ -172,6 +173,7 @@ namespace AlgebraGeometry
         General
     }
 
+    [Serializable]
     public partial class PointSymbol : ShapeSymbol
     {
         public override bool UnifyProperty(string label, out object obj)

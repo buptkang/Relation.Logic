@@ -25,6 +25,7 @@ namespace AlgebraGeometry
     using System.Linq;
     using System.Linq.Expressions;
 
+    [Serializable]
     public partial class Line : Shape
     {
         #region Properties and Constructors
@@ -414,6 +415,7 @@ namespace AlgebraGeometry
         PointSlope
     }
 
+    [Serializable]
     public partial class LineSymbol : ShapeSymbol
     {
         //IEnumerable<ShapeSymbol>

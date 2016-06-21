@@ -22,6 +22,7 @@ namespace CSharpLogic
     using System.Collections.Generic;
     using System.ComponentModel;
 
+    [Serializable]
     public abstract partial class Shape : Equation,
         IEquatable<Shape>, INotifyPropertyChanged
     {
@@ -111,6 +112,7 @@ namespace CSharpLogic
         public abstract object GetInputType();
     }
 
+    [Serializable]
     public abstract partial class ShapeSymbol
     {
         public Shape Shape { get; set; }

@@ -23,6 +23,7 @@ namespace AlgebraGeometry
     using CSharpLogic;
     using System;
 
+    [Serializable]
     public partial class Circle
     {
         public double Radius { get; set; }
@@ -51,6 +52,7 @@ namespace AlgebraGeometry
 
     }
 
+    [Serializable]
     public partial class CircleSymbol : ShapeSymbol
     {
         public CircleSymbol(Circle _circle)
